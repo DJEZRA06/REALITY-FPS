@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-black text-white select-none">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>REALITY FPS V15 — Diagnóstico 🔍</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; background: #000; }
+    
+    /* ========== PANTALLA INICIAL ========== */
+    #start-screen {
+      position: fixed; inset: 0; z-index: 300;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background-image: url("https://private-user-images.githubusercontent.com/175087039/666189837-6fa2a612-fb5a-431f-9066-7e595e888c38.jpg?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3OTEyNDg4MDYsIm5iZiI6MTc5MTI0ODUwNiwicGF0aCI6Ii8xNzUwODcwMzkvNjY2MTg5ODM3LTZmYTJhNjEyLWZiNWEtNDMxZi05MDY2LTdlNTk1ZTg4OGMzOC5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYxMDA2JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MTAwNlQwMTAxNDZaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT02YzJiYTgxMjJkMWI0N2MzOGJmZWNhZjU3ZjVmZDc1ZjM3MTY2YzU5YWFkYzE3NDk5NWJjYjk4ZDQxM2VlNzVhJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZqcGVnIn0.76G509wnyIaj5di8FgafBPm2LgkgT94cNDP0JNPZ8jU");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: rgba(0, 0, 0, 0.5);
+      background-blend-mode: multiply;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    #start-screen::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .title-group, .menu-buttons, .status-line {
+      position: relative; z-index: 1;
+    }
+    
+    .scan-lines {
+      position: absolute; inset: 0;
+      opacity: 0.04;
+      background-image: repeating-linear-gradient(
+        0deg, transparent, transparent 4px, rgba(255,255,255,0.06) 4px, rgba(255,255,255,0.06) 8px
+      );
+      pointer-events: none;
+      z-index: 2;
+    }
+    
+    .title-group { text-align: center; margin-bottom: 2.5rem; }
+    
+    .main-title {
+      font-size: 2.2rem; font-weight: 700; letter-spacing: 0.32em;
+      text-transform: uppercase; color: #fff;
+      text-shadow: 0 0 30px rgba(0,0,0,0.8), 0 0 60px rgba(255,255,255,0.15);
+      margin-bottom: 0.3rem;
+    }
+    
+    .sub-title {
+      font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.75); font-weight: 300;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+    
+    .divider {
+      width: 80px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+      margin: 1.2rem auto;
+    }
+    
+    .menu-buttons { display: flex; flex-direction: column; gap: 0.9rem; width: 100%; max-width: 260px; }
+    
+    .menu-btn {
+      width: 100%; padding: 0.9rem 1.2rem;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      color: rgba(255,255,255,0.9);
+      font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.25s ease;
+      position: relative; overflow: hidden;
+    }
+    
+    .menu-btn::before {
+      content: ''; position: absolute; left: 0; top: 0; width: 0; height: 100%;
+      background: rgba(255,255,255,0.08); transition: width 0.25s ease;
+    }
+    
+    .menu-btn:hover::before { width: 100%; }
+    .menu-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; transform: translateY(-1px); }
+    .menu-btn:active { transform: translateY(0); }
+    
+    .menu-btn-ar {
+      border-color: rgba(6,182,212,0.4);
+      color: rgba(165,243,252,0.95);
+      background: rgba(6,182,212,0.08);
+    }
+    .menu-btn-ar:hover { border-color: rgba(6,182,212,0.7); background: rgba(6,182,212,0.15); }
+    .menu-btn-primary { border-color: rgba(255,255,255,0.3); }
+    
+    .hint-text {
+      font-size: 0.6rem; color: rgba(255,255,255,0.45);
+      letter-spacing: 0.1em; margin-top: -0.3rem; margin-bottom: 1rem;
+      text-shadow: 0 0 6px rgba(0,0,0,0.8);
+    }
+    
+    .status-line {
+      font-size: 0.65rem; color: rgba(255,255,255,0.5);
+      letter-spacing: 0.12em; margin-top: 1.5rem;
+      min-height: 1.2rem; text-shadow: 0 0 6px rgba(0,0,0,0.8);
+    }
+    
+    /* ========== HUD ========== */
+    #hud {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 100;
+      padding: 2rem;
+    }
+    #crosshair {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px; height: 2px;
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 50%; pointer-events: none;
+      transition: opacity 0.12s ease;
+    }
+    .hud-top {
+      position: absolute; top: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 1.5rem; align-items: center;
+    }
+    .ammo-display {
+      font-size: 1.1rem; font-weight: 500; letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.9); text-shadow: 0 0 4px rgba(0,0,0,0.8);
+    }
+    .mode-indicator {
+      font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .btn-circle {
+      width: 4.5rem; height: 4.5rem; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.5);
+      color: rgba(255,255,255,0.85);
+      font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
+      touch-action: manipulation;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: auto; transition: transform 0.1s ease, background-color 0.1s ease, border-color 0.1s ease;
+    }
+    .btn-circle:active {
+      border-color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.15);
+      transform: scale(0.92);
+    }
+    .hud-buttons-left { position: absolute; bottom: 2.5rem; left: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+    .hud-buttons-center { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; }
+    .hud-buttons-right { position: absolute; bottom: 2.5rem; right: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+    
+    /* Botón de Pausa en el HUD */
+    .btn-pause-hud {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      width: 3.2rem; height: 3.2rem; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.55);
+      color: #fff; font-size: 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: auto; cursor: pointer; z-index: 105;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .btn-pause-hud:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+    .status-text {
+      position: absolute; bottom: 12rem; left: 50%; transform: translateX(-50%);
+      font-size: 0.7rem; color: rgba(255,255,255,0.7);
+      background: rgba(0,0,0,0.6);
+      padding: 0.4rem 0.8rem; border-radius: 2rem;
+      pointer-events: none;
+    }
+    .modo-badge {
+      position: absolute; top: 1rem; left: 1rem;
+      font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.3rem 0.7rem; border-radius: 2rem;
+      border: 1px solid rgba(234, 179, 8, 0.3);
+      background: rgba(234, 179, 8, 0.1);
+      color: rgba(254, 240, 138, 0.9);
+    }
+    /* ========== MENÚ DE PAUSA OVERLAY ========== */
+    #pause-menu {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif;
+    }
+    .pause-title {
+      font-size: 1.8rem; font-weight: 700; letter-spacing: 0.3em;
+      text-transform: uppercase; color: #fff; margin-bottom: 2rem;
+      text-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+    /* ========== JOYSTICK (SOLO MODO SIMULADOR) ========== */
+    #joystick {
+      position: absolute; left: 1.5rem; bottom: 8rem;
+      width: 9rem; height: 9rem; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.45);
+      pointer-events: auto; touch-action: none;
+    }
+    #joystick::before {
+      content: ''; position: absolute; inset: 22%; border-radius: 50%;
+      border: 1px dashed rgba(255,255,255,0.15); pointer-events: none;
+    }
+    #joystick-knob {
+      position: absolute; left: 50%; top: 50%; width: 3.6rem; height: 3.6rem;
+      margin: -1.8rem 0 0 -1.8rem; border-radius: 50%;
+      background: rgba(255,255,255,0.22); border: 1px solid rgba(255,255,255,0.55);
+      pointer-events: none;
+    }
+    /* ========== EDITOR DE HUD ========== */
+    #hud.hud-editando .hud-editable {
+      pointer-events: auto !important; touch-action: none; cursor: move;
+      outline: 2px dashed rgba(250, 204, 21, 0.85); outline-offset: 4px;
+      transition: none !important;
+    }
+    #hud.hud-editando .btn-circle:active, #hud.hud-editando .btn-pause-hud:active { transform: none !important; }
+    #hud.hud-editando .hud-editable.hud-sel {
+      outline: 2px solid #facc15; background-color: rgba(250, 204, 21, 0.18);
+    }
+    #hud-editor {
+      position: fixed; z-index: 500; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: min(92vw, 340px); padding: 0.8rem 0.9rem;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.25); border-radius: 1rem;
+      font-family: 'Inter', sans-serif; color: #fff;
+      display: flex; flex-direction: column; gap: 0.6rem;
+    }
+    #hud-editor-titulo {
+      font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; text-align: center;
+      color: rgba(250, 204, 21, 0.95); cursor: grab; touch-action: none; padding: 0.3rem 0;
+    }
+    #hud-editor-ayuda { font-size: 0.62rem; text-align: center; color: rgba(255,255,255,0.6); line-height: 1.4; }
+    .hud-ed-fila { display: flex; align-items: center; gap: 0.6rem; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .hud-ed-fila input[type=range] { flex: 1; min-width: 0; }
+    .hud-ed-botones { display: flex; gap: 0.5rem; }
+    .hud-ed-btn {
+      flex: 1; padding: 0.65rem 0.3rem; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.06); color: #fff; border-radius: 0.5rem;
+    }
+    .hud-ed-btn:active { background: rgba(255,255,255,0.2); }
+    .hud-ed-btn.ok { border-color: rgba(74,222,128,0.6); color: rgb(187,247,208); background: rgba(74,222,128,0.12); }
+    .hud-ed-btn.no { border-color: rgba(239,68,68,0.5); color: rgb(252,165,165); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- PANTALLA INICIAL -->
+  <div id="start-screen">
+    <div class="scan-lines"></div>
+    
+    <div class="title-group">
+      <h1 class="main-title">Reality FPS</h1>
+      <p class="sub-title">War is the reality</p>
+      <div class="divider"></div>
+    </div>
+    
+    <div class="menu-buttons">
+      <button id="btn-ar" class="menu-btn menu-btn-ar">
+        REALIDAD AUMENTADA
+      </button>
+      <p class="hint-text">Requiere Chrome en Android + WebXR</p>
+      
+      <button id="btn-sim" class="menu-btn menu-btn-primary">
+        MODO SIMULADOR
+      </button>
+      <p class="hint-text">Sin cámara · Prueba rápida</p>
+    </div>
+    
+    <p id="xr-status" class="status-line"></p>
+  </div>
+  
+  <!-- HUD DEL JUEGO -->
+  <div id="hud" class="hidden">
+    <div id="modo-indicador" class="modo-badge hidden">MODO SIMULADOR</div>
+    
+    <button id="btn-pause" class="btn-pause-hud">⏸</button>
+    
+    <div id="joystick" class="hidden"><div id="joystick-knob"></div></div>
+    <div class="hud-top" id="hud-top">
+      <div class="ammo-display"><span id="ammo">12</span> / 12</div>
+      <div id="mode" class="mode-indicator">Cadera</div>
+    </div>
+    
+    <div id="crosshair"></div>
+    <div id="load-status" class="status-text">Cargando arma...</div>
+    
+    <div class="hud-buttons-left">
+      <button id="btn-inspect" class="btn-circle">Inspeccionar</button>
+    </div>
+    <div class="hud-buttons-center">
+      <button id="btn-reload" class="btn-circle">Recargar</button>
+      <button id="btn-fire" class="btn-circle" style="width: 5.5rem; height: 5.5rem; font-size: 0.7rem;">Disparar</button>
+      <button id="btn-aim" class="btn-circle">Apuntar</button>
+    </div>
+    <div class="hud-buttons-right"></div>
+  </div>
+  <!-- MENÚ DE PAUSA -->
+  <div id="pause-menu" class="hidden">
+    <h2 class="pause-title">PAUSA</h2>
+    <div class="menu-buttons">
+      <button id="btn-resume" class="menu-btn menu-btn-primary">
+        REANUDAR
+      </button>
+      <button id="btn-edit-hud" class="menu-btn">
+        EDITAR HUD
+      </button>
+      <button id="btn-quit" class="menu-btn" style="border-color: rgba(239, 68, 68, 0.4); color: rgba(252, 165, 165, 0.95); background: rgba(239, 68, 68, 0.08);">
+        SALIR AL MENÚ
+      </button>
+    </div>
+  </div>
+  <!-- EDITOR DE HUD -->
+  <div id="hud-editor" class="hidden">
+    <div id="hud-editor-titulo">Editar HUD</div>
+    <div id="hud-editor-ayuda">Arrastra un elemento para moverlo. Tócalo para elegirlo y cambia su tamaño aquí abajo. Puedes mover esta barra desde el título.</div>
+    <div class="hud-ed-fila">
+      <span>Tamaño</span>
+      <input type="range" id="hud-size" min="50" max="200" value="100" disabled>
+      <span id="hud-size-val">--</span>
+    </div>
+    <div class="hud-ed-botones">
+      <button id="hud-reset" class="hud-ed-btn">Restablecer</button>
+      <button id="hud-cancel" class="hud-ed-btn no">Cancelar</button>
+      <button id="hud-save" class="hud-ed-btn ok">Guardar</button>
+    </div>
+  </div>
+  <script>
+    const CONFIG = {
+      // ============================================================
+      //  JOYSTICK DE MOVIMIENTO (SOLO MODO SIMULADOR) - EDITA AQUÍ
+      // ============================================================
+      JOYSTICK: {
+        ACTIVO: true,               // true = muestra el joystick y permite caminar en el Simulador
+        VELOCIDAD: 5.2,             // Velocidad máxima al caminar (metros por segundo)
+        ZONA_MUERTA: 0.12,          // Zona central del joystick que no mueve (0 a 1)
+        RADIO_JUGADOR: 0.35,        // Grosor del jugador para las colisiones (metros)
+        COLISIONES_JUGADOR: true,   // true = no puedes atravesar árboles ni rocas
+        LIMITE_MAPA: 47             // Hasta dónde puedes caminar desde el centro (el suelo mide 50)
+      },
+      // ============================================================
+      //  EDITOR DE HUD - EDITA AQUÍ A TU GUSTO
+      // ============================================================
+      HUD: {
+        ESCALA_MIN: 0.5,                    // Tamaño mínimo permitido (0.5 = 50%)
+        ESCALA_MAX: 2.0,                    // Tamaño máximo permitido (2.0 = 200%)
+        CLAVE_GUARDADO: 'reality_fps_hud'   // Nombre base del guardado (se separa por modo: _simulador / _ar)
+      },
+      // ============================================================
+      //  ENTORNO DEL SIMULADOR (ÁRBOLES Y ROCAS) - EDITA AQUÍ
+      // ============================================================
+      ENTORNO: {
+        ARBOLES: 28,                // Cantidad de árboles
+        ROCAS: 20,                  // Cantidad de rocas
+        DISTANCIA_MIN: 5,           // Distancia mínima al jugador (metros)
+        DISTANCIA_MAX: 42,          // Distancia máxima al jugador (metros)
+        SEPARACION: 1.5,            // Espacio mínimo entre objetos
+        SEMILLA: 7,                 // Cambia este número para otra distribución del terreno
+        ESCALA_ARBOL_MIN: 0.8,      // Tamaño mínimo de árboles
+        ESCALA_ARBOL_MAX: 1.5,      // Tamaño máximo de árboles
+        ESCALA_ROCA_MIN: 0.5,       // Tamaño mínimo de rocas
+        ESCALA_ROCA_MAX: 1.6,       // Tamaño máximo de rocas
+        COLISIONES: true,           // true = las balas chocan con árboles y rocas
+        COLISION_ARBOL: 0.45,       // Grosor de colisión del jugador con el tronco (metros por unidad de tamaño)
+        COLISION_ROCA: 0.95,        // Grosor de colisión del jugador con las rocas (multiplicador de su tamaño)
+        LUZ_AMBIENTE: 0.55,         // Luz suave para que no queden zonas totalmente oscuras (0 = nada)
+        COLOR_TRONCO: 0x6b4423,
+        COLORES_COPA: [0x2d6a2d, 0x23591f, 0x347a35],
+        COLORES_ROCA: [0x7d7d80, 0x6a6a6e, 0x8a8782]
+      },
+      // ============================================================
+      //  GIROSCOPIO (SOLO MODO SIMULADOR) - EDITA AQUÍ A TU GUSTO
+      // ============================================================
+      GIROSCOPIO: {
+        ACTIVO: true,               // true = usa giroscopio en el Simulador, false = desactivado
+        SENSIBILIDAD_X: 1.0,        // Giro horizontal (izq/der). 1.0 = 1:1 con el teléfono, 2.0 = el doble de rápido
+        SENSIBILIDAD_Y: 1.0,        // Giro vertical (arriba/abajo)
+        SUAVIZADO: 0.35,            // 0 = sin suavizado (respuesta directa) ... 0.95 = muy suave pero con retraso
+        ZONA_MUERTA: 0.08,          // Grados por fotograma que se ignoran (quita temblor). 0 = sin zona muerta
+        INVERTIR_X: false,          // Invierte el giro horizontal
+        INVERTIR_Y: false,          // Invierte el giro vertical
+        LIMITE_ARRIBA: 85,          // Máximo ángulo mirando hacia arriba (grados, hasta 90)
+        LIMITE_ABAJO: 85,           // Máximo ángulo mirando hacia abajo (grados, hasta 90)
+        CALIBRAR_AL_INICIAR: true,  // true = al empezar, tu posición actual es "al frente"
+        MANTENER_PITCH_INICIAL: true, // true = respeta la inclinación vertical con que empiezas; false = empiezas mirando al horizonte
+        // --- Inclinación lateral (la cámara y el arma se ladean cuando inclinas el teléfono) ---
+        INCLINACION_LATERAL: 1.0,    // 0 = horizonte siempre recto (como antes) ... 1 = copia toda la inclinación del teléfono
+        SUAVIZADO_INCLINACION: 0.35,  // 0 = directo ... 0.95 = muy suave
+        INVERTIR_INCLINACION: false, // Invierte el sentido de la inclinación
+        LIMITE_INCLINACION: 65       // Máximo de inclinación lateral en grados
+      },
+      // ============================================================
+      //  NEBLINA (SOLO MODO SIMULADOR) - EDITA AQUÍ A TU GUSTO
+      //  Es niebla lineal de Three.js: casi no cuesta rendimiento.
+      // ============================================================
+      NEBLINA: {
+        ACTIVA: true,               // true = hay neblina en el Simulador, false = sin neblina
+        COLOR: 0xa8d4ec,            // Color de la neblina (parecido al cielo para que se mezcle)
+        CERCA: 6,                   // Distancia (metros) donde empieza la neblina
+        LEJOS: 55                   // Distancia (metros) donde todo se ve totalmente cubierto
+      },
+      // ============================================================
+      //  DIAGNÓSTICO: muestra FPS, el peor fotograma del último segundo y cuántos dedos tocan
+      //  la pantalla. Ponlo en false cuando ya no lo necesites.
+      // ============================================================
+      DEBUG: { MOSTRAR_FPS: false },
+      MODELO_ARMA: 'https://raw.githubusercontent.com/DJEZRA06/pistolas/main/pistola_9mm.glb',
+      SONIDO_DISPARO: 'https://github.com/user-attachments/files/33082111/Disparo9mm.wav',
+      SONIDO_RECARGA: 'https://github.com/user-attachments/files/32466886/freesound_community-9mm-pistol-load-and-chamber-98830.mp3',
+      VOLUMEN_DISPARO: 0.8,
+      VOLUMEN_RECARGA: 0.7,
+      MUNICION_MAX: 12,
+      ESCALA_ARMA: 1.0,
+      SUAVIZADO: 0.15,
+      CADENCIA_DISPARO: 120,
+      BALA: {
+        VELOCIDAD: 25,
+        LARGO_LINEA: 0.6,
+        ALCANCE_TOTAL_CADERA: 16,
+        ALCANCE_TOTAL_ADS: 14,
+        DESVIO_CADERA: { x: 0.02, y: 0.01 },
+        DESVIO_ADS: { x: 0.00, y: 0.00 },
+        VIDA_MAX_CADERA: 1.70,
+        VIDA_MAX_ADS: 1.70,
+        COLOR: 0xFF0000,
+        ANCHURA_LINEA: 6,
+        DESVANECIMIENTO: true,
+        POSICION_LOCAL_CAÑON_CADERA: { x: 0.00, y: 0.08, z: 0.05 },
+        POSICION_LOCAL_CAÑON_ADS: { x: 0.05, y: 0.06, z: 0.05 }
+      },
+      CHISPAS: {
+        CANTIDAD: 6,
+        LARGO: 0.025,
+        ANCHO: 0.002,
+        COLOR: 0xFFFF00,
+        VELOCIDAD_MIN: 4,
+        VELOCIDAD_MAX: 8,
+        DURACION: 0.08
+      },
+      POLVO: {
+        CANTIDAD: 14,
+        RADIO_MIN: 0.02,
+        RADIO_MAX: 0.08,
+        COLOR: 0xFFFFFF,
+        VELOCIDAD_MIN: 2.6,
+        VELOCIDAD_MAX: 2.2,
+        DURACION_MIN: 0.35,
+        DURACION_MAX: 0.1,
+        GRAVEDAD: -0.8,
+        ASCENSO: 0.4
+      },
+      POS_CADERA: { x: +0.18, y: -0.17, z: -0.8 },
+      ROT_CADERA: { x: 0.15, y: Math.PI * 1.6, z: 0 },
+      POS_APUNTAR: { x: +0.052, y: -0.09, z: -0.20 },
+      ROT_APUNTAR: { x: +0.16, y: Math.PI * 1.502, z: +0.18 },
+      RESP: {
+        cadera: { y: 0.008, z: 0.003, rotX: 0.005, vel: 1.8 },
+        ads: { y: 0.0025, z: 0.001, rotX: 0.0015, vel: 2.2 }
+      },
+      RETRO: {
+        cadera: { z: 0.08, y: 0.03 },
+        apuntar: { z: 0.04, y: 0.01 },
+        duracion: 80
+      },
+      RECARGA: {
+        duracion: 1500, rotX: 0.10, rotZ: 0.35,
+        despY: 0.02, despZ: 0.00, suavizado: 0.12
+      },
+      INSPECCION: {
+        duracion: 4000, suavizado: 0.08, permitirCancelar: true
+      }
+    };
+    let poolDisparos = [];
+    const MAX_DISPAROS_SIMULTANEOS = 8;
+    function dispararSonido() {
+      let audio = poolDisparos.find(a => a.ended || a.paused || a.currentTime <= 0.1);
+      if (!audio) {
+        audio = new Audio(CONFIG.SONIDO_DISPARO);
+        audio.volume = CONFIG.VOLUMEN_DISPARO;
+        if (poolDisparos.length < MAX_DISPAROS_SIMULTANEOS) poolDisparos.push(audio);
+      }
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+    
+    let audioRecarga = null;
+    function recargarSonido() {
+      if (!audioRecarga) {
+        audioRecarga = new Audio(CONFIG.SONIDO_RECARGA);
+        audioRecarga.volume = CONFIG.VOLUMEN_RECARGA;
+      }
+      audioRecarga.currentTime = 0;
+      audioRecarga.play().catch(() => {});
+    }
+    function vacioSonido() {}
+    let scene, camera, renderer, gun = null;
+    let puntoSalidaCañon = null;
+    let MODO_SIMULADOR = false;
+    let isPaused = false;
+    let xrSession = null;
+    let ammo = CONFIG.MUNICION_MAX;
+    let isAiming = false, isReloading = false, isInspecting = false;
+    let retrocesoActivo = false;
+    let tiempoInspeccion = 0, tiempoRecarga = 0;
+    let timerRecarga = null;
+    let ultimoDisparo = 0;
+    let balas = [];
+    let chispas = [];
+    let polvo = [];
+    const UI = {
+      inicio: document.getElementById('start-screen'),
+      hud: document.getElementById('hud'),
+      pausa: document.getElementById('pause-menu'),
+      estadoXR: document.getElementById('xr-status'),
+      indicadorModo: document.getElementById('modo-indicador'),
+      crosshair: document.getElementById('crosshair'),
+      textoModo: document.getElementById('mode'),
+      textoMunicion: document.getElementById('ammo'),
+      estadoCarga: document.getElementById('load-status'),
+      btnSim: document.getElementById('btn-sim'),
+      btnAR: document.getElementById('btn-ar'),
+      btnApuntar: document.getElementById('btn-aim'),
+      btnDisparar: document.getElementById('btn-fire'),
+      btnRecargar: document.getElementById('btn-reload'),
+      btnInspeccion: document.getElementById('btn-inspect'),
+      btnPausa: document.getElementById('btn-pause'),
+      btnReanudar: document.getElementById('btn-resume'),
+      btnSalir: document.getElementById('btn-quit')
+    };
+    // ===== RENDIMIENTO: reutilizar objetos en vez de crearlos/destruirlos en cada disparo =====
+    // Geometrías compartidas + "pools" de mallas. Así no se suben ni liberan buffers de la GPU
+    // en cada tiro (eso causaba tirones al disparar rápido).
+    const Pool = { chispas: [], polvo: [], balas: [], geoChispa: null, geoPolvo: null, geoBala: null };
+    function reiniciarPools() {
+      Pool.chispas.length = 0; Pool.polvo.length = 0; Pool.balas.length = 0;
+      Pool.geoChispa = Pool.geoPolvo = Pool.geoBala = null;
+    }
+    function liberarChispa(mesh) { scene.remove(mesh); Pool.chispas.push(mesh); }
+    function liberarPolvo(mesh) { scene.remove(mesh); Pool.polvo.push(mesh); }
+    function liberarBala(mesh) { scene.remove(mesh); Pool.balas.push(mesh); }
+    // Luces de fogonazo/impacto: se crean UNA sola vez (intensidad 0) y solo se les cambia la intensidad.
+    // Añadir/quitar luces en cada disparo obligaba a Three.js a recompilar los shaders (tirones).
+    let luzFogonazo = null, luzImpacto = null, tFogonazo = 0, tImpacto = 0;
+    const EJE_Y = new THREE.Vector3(0, 1, 0);
+    function crearChispaCilindrica(pos, direccion) {
+      if (!Pool.geoChispa) Pool.geoChispa = new THREE.CylinderGeometry(CONFIG.CHISPAS.ANCHO/2, CONFIG.CHISPAS.ANCHO/2, CONFIG.CHISPAS.LARGO, 6);
+      let chispa = Pool.chispas.pop();
+      if (!chispa) chispa = new THREE.Mesh(Pool.geoChispa, new THREE.MeshBasicMaterial({ color: CONFIG.CHISPAS.COLOR, transparent: true, opacity: 0.9 }));
+      chispa.material.opacity = 0.9;
+      chispa.position.copy(pos);
+      chispa.quaternion.setFromUnitVectors(EJE_Y, direccion.clone().normalize());
+      scene.add(chispa);
+      return {
+        mesh: chispa,
+        velocidad: direccion.multiplyScalar(CONFIG.CHISPAS.VELOCIDAD_MIN + Math.random()*(CONFIG.CHISPAS.VELOCIDAD_MAX-CONFIG.CHISPAS.VELOCIDAD_MIN)),
+        vida: 0, vidaMax: CONFIG.CHISPAS.DURACION*(0.7+Math.random()*0.6)
+      };
+    }
+    function crearEfectosFogonazo(pos) {
+      if (luzFogonazo) { luzFogonazo.position.copy(pos); luzFogonazo.intensity = 4; tFogonazo = 0.05; }
+      const dirPrincipal = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+      for (let i=0; i<CONFIG.CHISPAS.CANTIDAD; i++) {
+        const desvio = new THREE.Vector3((Math.random()-0.5)*0.6, (Math.random()-0.5)*0.6, (Math.random()-0.5)*0.3);
+        chispas.push(crearChispaCilindrica(pos.clone(), dirPrincipal.clone().add(desvio).normalize()));
+      }
+    }
+    
+    function crearExplosionPolvo(pos) {
+      for (let i = 0; i < CONFIG.POLVO.CANTIDAD; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const dir = new THREE.Vector3(
+          Math.sin(phi) * Math.cos(theta),
+          Math.abs(Math.cos(phi)) * 0.7 + CONFIG.POLVO.ASCENSO * 0.3,
+          Math.sin(phi) * Math.sin(theta)
+        ).normalize();
+        
+        const radio = CONFIG.POLVO.RADIO_MIN + Math.random() * (CONFIG.POLVO.RADIO_MAX - CONFIG.POLVO.RADIO_MIN);
+        if (!Pool.geoPolvo) Pool.geoPolvo = new THREE.SphereGeometry(1, 6, 6);   // esfera unitaria, se escala por partícula
+        let particula = Pool.polvo.pop();
+        if (!particula) particula = new THREE.Mesh(Pool.geoPolvo, new THREE.MeshBasicMaterial({
+          color: CONFIG.POLVO.COLOR,
+          transparent: true,
+          opacity: 0.75,
+          depthWrite: false
+        }));
+        const mat = particula.material;
+        mat.opacity = 0.75;
+        particula.scale.setScalar(radio);
+        particula.position.copy(pos);
+        scene.add(particula);
+        
+        const vel = CONFIG.POLVO.VELOCIDAD_MIN + Math.random() * (CONFIG.POLVO.VELOCIDAD_MAX - CONFIG.POLVO.VELOCIDAD_MIN);
+        polvo.push({
+          mesh: particula,
+          material: mat,
+          velocidad: dir.multiplyScalar(vel),
+          radioInicial: radio,
+          vida: 0,
+          vidaMax: CONFIG.POLVO.DURACION_MIN + Math.random() * (CONFIG.POLVO.DURACION_MAX - CONFIG.POLVO.DURACION_MIN)
+        });
+      }
+      if (luzImpacto) { luzImpacto.position.copy(pos); luzImpacto.intensity = 1.5; tImpacto = 0.06; }
+    }
+    
+    function crearBala() {
+      const posOrigen = new THREE.Vector3();
+      obtenerPosicionCañon(posOrigen);
+      const alcance = isAiming ? CONFIG.BALA.ALCANCE_TOTAL_ADS : CONFIG.BALA.ALCANCE_TOTAL_CADERA;
+      const vidaMax = isAiming ? CONFIG.BALA.VIDA_MAX_ADS : CONFIG.BALA.VIDA_MAX_CADERA;
+      const desvio = isAiming ? CONFIG.BALA.DESVIO_ADS : CONFIG.BALA.DESVIO_CADERA;
+      const dirBase = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+      const dirFinal = dirBase.clone();
+      dirFinal.x += (Math.random()-0.5)*2*desvio.x;
+      dirFinal.y += (Math.random()-0.5)*2*desvio.y;
+      dirFinal.normalize();
+      
+      if (!Pool.geoBala) Pool.geoBala = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-CONFIG.BALA.LARGO_LINEA)]);
+      let linea = Pool.balas.pop();
+      if (!linea) linea = new THREE.Line(Pool.geoBala, new THREE.LineBasicMaterial({ 
+        color: CONFIG.BALA.COLOR, 
+        transparent: true, 
+        opacity: 1,
+        linewidth: CONFIG.BALA.ANCHURA_LINEA
+      }));
+      const mat = linea.material;
+      mat.opacity = 1;
+      linea.position.copy(posOrigen);
+      linea.lookAt(posOrigen.clone().add(dirFinal));
+      scene.add(linea);
+      
+      balas.push({ mesh: linea, material: mat, direccion: dirFinal, velocidad: CONFIG.BALA.VELOCIDAD, distanciaRecorrida: 0, distanciaMax: alcance, vida: 0, vidaMax: vidaMax });
+      crearEfectosFogonazo(posOrigen);
+    }
+    function actualizarBalasYEfectos(delta) {
+      if (tFogonazo > 0) { tFogonazo -= delta; if (tFogonazo <= 0 && luzFogonazo) luzFogonazo.intensity = 0; }
+      if (tImpacto > 0) { tImpacto -= delta; if (tImpacto <= 0 && luzImpacto) luzImpacto.intensity = 0; }
+      for (let i=balas.length-1; i>=0; i--) {
+        const b = balas[i];
+        const pasoBala = b.velocidad*delta;
+        const posPrevia = b.mesh.position.clone();
+        b.mesh.position.addScaledVector(b.direccion, pasoBala);
+        if (MODO_SIMULADOR && CONFIG.ENTORNO.COLISIONES && obstaculos.length) {
+          const impacto = detectarImpactoObstaculo(posPrevia, b.direccion, pasoBala);
+          if (impacto) {
+            efectosImpactoObstaculo(impacto, b.direccion);
+            liberarBala(b.mesh); balas.splice(i,1);
+            continue;
+          }
+        }
+        b.distanciaRecorrida += b.velocidad*delta;
+        b.vida += delta;
+        if (CONFIG.BALA.DESVANECIMIENTO) b.material.opacity = 1 - (b.vida/b.vidaMax);
+        if (b.distanciaRecorrida >= b.distanciaMax || b.vida >= b.vidaMax) {
+          crearExplosionPolvo(b.mesh.position.clone());
+          liberarBala(b.mesh); balas.splice(i,1);
+        }
+      }
+      for (let i=chispas.length-1; i>=0; i--) {
+        const c = chispas[i];
+        c.mesh.position.addScaledVector(c.velocidad, delta);
+        c.vida += delta;
+        c.mesh.material.opacity = 1 - (c.vida/c.vidaMax);
+        if (c.vida >= c.vidaMax) { liberarChispa(c.mesh); chispas.splice(i,1); }
+      }
+      for (let i=polvo.length-1; i>=0; i--) {
+        const p = polvo[i];
+        p.velocidad.y += CONFIG.POLVO.GRAVEDAD * delta;
+        p.mesh.position.addScaledVector(p.velocidad, delta);
+        const progreso = p.vida / p.vidaMax;
+        const nuevaEscala = 1 + progreso * 2.5;
+        p.mesh.scale.setScalar(p.radioInicial * nuevaEscala);
+        p.vida += delta;
+        p.material.opacity = 0.75 * (1 - progreso);
+        if (p.vida >= p.vidaMax) {
+          liberarPolvo(p.mesh);
+          polvo.splice(i, 1);
+        }
+      }
+    }
+    function actualizarPosicionCañon() {
+      if (!puntoSalidaCañon) return;
+      const pos = isAiming ? CONFIG.BALA.POSICION_LOCAL_CAÑON_ADS : CONFIG.BALA.POSICION_LOCAL_CAÑON_CADERA;
+      puntoSalidaCañon.position.set(pos.x, pos.y, pos.z);
+    }
+    function obtenerPosicionCañon(salidaPos) {
+      if (gun && puntoSalidaCañon) {
+        actualizarPosicionCañon();
+        gun.updateMatrixWorld(true);
+        puntoSalidaCañon.getWorldPosition(salidaPos);
+      } else camera.getWorldPosition(salidaPos);
+    }
+    function crearArmaPrueba() {
+      const g = new THREE.Group();
+      const cuerpo = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.15,0.6), new THREE.MeshStandardMaterial({color:0x222222,metalness:0.8,roughness:0.2}));
+      const cañon = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.05,0.5,12), new THREE.MeshStandardMaterial({color:0x111111,metalness:0.9,roughness:0.1}));
+      cañon.rotation.x = -Math.PI/2; cañon.position.z = -0.55;
+      const empuñadura = new THREE.Mesh(new THREE.BoxGeometry(0.1,0.25,0.12), new THREE.MeshStandardMaterial({color:0x5c3a21,roughness:0.9}));
+      empuñadura.position.set(0.05,-0.18,0.08); empuñadura.rotation.x = -0.25;
+      g.add(cuerpo, cañon, empuñadura);
+      g.position.set(CONFIG.POS_CADERA.x, CONFIG.POS_CADERA.y, CONFIG.POS_CADERA.z);
+      return g;
+    }
+    // ===== EDITOR DE HUD (guardado separado: Simulador / Realidad Aumentada) =====
+    const HUDEditor = {
+      activa: false, cargado: false, modo: 'simulador',
+      guardado: {}, borrador: {},
+      sel: null, arrastre: null, elementos: [], barra: null
+    };
+    const IDS_HUD_EDITABLES = ['joystick', 'btn-pause', 'hud-top', 'btn-inspect', 'btn-reload', 'btn-fire', 'btn-aim'];
+    const HUDUI = {
+      barra: document.getElementById('hud-editor'),
+      titulo: document.getElementById('hud-editor-titulo'),
+      slider: document.getElementById('hud-size'),
+      valor: document.getElementById('hud-size-val'),
+      btnAbrir: document.getElementById('btn-edit-hud'),
+      btnReset: document.getElementById('hud-reset'),
+      btnCancelar: document.getElementById('hud-cancel'),
+      btnGuardar: document.getElementById('hud-save')
+    };
+    function claveHUD() { return CONFIG.HUD.CLAVE_GUARDADO + '_' + HUDEditor.modo; }
+    function leerLayoutHUD() {
+      try {
+        const txt = localStorage.getItem(claveHUD());
+        const o = txt ? JSON.parse(txt) : {};
+        return (o && typeof o === 'object') ? o : {};
+      } catch (e) { return {}; }
+    }
+    function escribirLayoutHUD(layout) {
+      try {
+        if (Object.keys(layout).length) localStorage.setItem(claveHUD(), JSON.stringify(layout));
+        else localStorage.removeItem(claveHUD());
+      } catch (e) { console.warn('No se pudo guardar el HUD', e); }
+    }
+    function copiarLayoutHUD(l) { return JSON.parse(JSON.stringify(l)); }
+    // Aplica posición/tamaño a un elemento (en fracciones de pantalla) y lo mantiene dentro de la pantalla
+    function colocarHUD(el, d) {
+      const W = window.innerWidth, H = window.innerHeight;
+      d.s = Math.max(CONFIG.HUD.ESCALA_MIN, Math.min(CONFIG.HUD.ESCALA_MAX, d.s || 1));
+      el.style.scale = d.s;
+      el.style.translate = (d.dx * W) + 'px ' + (d.dy * H) + 'px';
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) return d;
+      let ax = 0, ay = 0;
+      if (r.left < 0) ax = -r.left; else if (r.right > W) ax = W - r.right;
+      if (r.top < 0) ay = -r.top; else if (r.bottom > H) ay = H - r.bottom;
+      if (ax || ay) {
+        d.dx += ax / W; d.dy += ay / H;
+        el.style.translate = (d.dx * W) + 'px ' + (d.dy * H) + 'px';
+      }
+      return d;
+    }
+    function aplicarLayoutHUD(layout) {
+      HUDEditor.elementos.forEach(({ id, el }) => {
+        el.style.translate = ''; el.style.scale = '';
+        if (layout[id]) colocarHUD(el, layout[id]);
+      });
+    }
+    function prepararElementosHUD() {
+      if (HUDEditor.elementos.length) return;
+      IDS_HUD_EDITABLES.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('hud-editable');
+        HUDEditor.elementos.push({ id, el });
+        el.addEventListener('pointerdown', e => inicioArrastreHUD(e, id, el));
+        el.addEventListener('pointermove', moverArrastreHUD);
+        el.addEventListener('pointerup', finArrastreHUD);
+        el.addEventListener('pointercancel', finArrastreHUD);
+      });
+    }
+    // Se llama al empezar una partida: carga la disposición propia del modo actual
+    function cargarLayoutHUD() {
+      prepararElementosHUD();
+      HUDEditor.modo = MODO_SIMULADOR ? 'simulador' : 'ar';
+      mostrarJoystick(MODO_SIMULADOR && CONFIG.JOYSTICK.ACTIVO);
+      HUDEditor.guardado = leerLayoutHUD();
+      HUDEditor.borrador = copiarLayoutHUD(HUDEditor.guardado);
+      aplicarLayoutHUD(HUDEditor.guardado);
+      HUDEditor.cargado = true;
+    }
+    function seleccionarHUD(id, el) {
+      HUDEditor.elementos.forEach(x => x.el.classList.remove('hud-sel'));
+      el.classList.add('hud-sel');
+      HUDEditor.sel = id;
+      const d = HUDEditor.borrador[id];
+      const s = d ? d.s : 1;
+      HUDUI.slider.disabled = false;
+      HUDUI.slider.value = Math.round(s * 100);
+      HUDUI.valor.textContent = Math.round(s * 100) + '%';
+    }
+    function inicioArrastreHUD(e, id, el) {
+      if (!HUDEditor.activa) return;
+      e.preventDefault();
+      if (!HUDEditor.borrador[id]) HUDEditor.borrador[id] = { dx: 0, dy: 0, s: 1 };
+      seleccionarHUD(id, el);
+      const d = HUDEditor.borrador[id];
+      HUDEditor.arrastre = { id, el, x: e.clientX, y: e.clientY, dx: d.dx, dy: d.dy, pid: e.pointerId };
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    function moverArrastreHUD(e) {
+      const a = HUDEditor.arrastre;
+      if (!HUDEditor.activa || !a || a.pid !== e.pointerId) return;
+      const d = HUDEditor.borrador[a.id];
+      d.dx = a.dx + (e.clientX - a.x) / window.innerWidth;
+      d.dy = a.dy + (e.clientY - a.y) / window.innerHeight;
+      colocarHUD(a.el, d);
+    }
+    function finArrastreHUD() { HUDEditor.arrastre = null; }
+    function abrirEditorHUD() {
+      if (!HUDEditor.cargado) cargarLayoutHUD();
+      HUDEditor.activa = true;
+      HUDEditor.borrador = copiarLayoutHUD(HUDEditor.guardado);
+      HUDEditor.sel = null;
+      HUDEditor.elementos.forEach(x => x.el.classList.remove('hud-sel'));
+      HUDUI.slider.disabled = true; HUDUI.slider.value = 100; HUDUI.valor.textContent = '--';
+      HUDUI.titulo.textContent = 'Editar HUD · ' + (HUDEditor.modo === 'simulador' ? 'Modo Simulador' : 'Realidad Aumentada');
+      UI.pausa.classList.add('hidden');
+      UI.hud.classList.add('hud-editando');
+      HUDUI.barra.classList.remove('hidden');
+    }
+    function cerrarEditorHUD() {
+      HUDEditor.activa = false; HUDEditor.arrastre = null; HUDEditor.sel = null;
+      UI.hud.classList.remove('hud-editando');
+      HUDEditor.elementos.forEach(x => x.el.classList.remove('hud-sel'));
+      HUDUI.barra.classList.add('hidden');
+      UI.pausa.classList.remove('hidden');   // vuelve al menú de pausa
+    }
+    function guardarEditorHUD() {
+      const limpio = {};
+      Object.keys(HUDEditor.borrador).forEach(id => {
+        const d = HUDEditor.borrador[id];
+        if (Math.abs(d.dx) > 1e-4 || Math.abs(d.dy) > 1e-4 || Math.abs(d.s - 1) > 1e-3) limpio[id] = d;
+      });
+      HUDEditor.guardado = limpio;
+      escribirLayoutHUD(limpio);
+      cerrarEditorHUD();
+    }
+    function cancelarEditorHUD() {
+      HUDEditor.borrador = copiarLayoutHUD(HUDEditor.guardado);
+      aplicarLayoutHUD(HUDEditor.guardado);
+      cerrarEditorHUD();
+    }
+    function restablecerEditorHUD() {
+      HUDEditor.borrador = {};
+      aplicarLayoutHUD({});
+      HUDEditor.sel = null;
+      HUDEditor.elementos.forEach(x => x.el.classList.remove('hud-sel'));
+      HUDUI.slider.disabled = true; HUDUI.slider.value = 100; HUDUI.valor.textContent = '--';
+    }
+    HUDUI.slider.addEventListener('input', () => {
+      const id = HUDEditor.sel; if (!id) return;
+      const item = HUDEditor.elementos.find(x => x.id === id); if (!item) return;
+      const d = HUDEditor.borrador[id] || (HUDEditor.borrador[id] = { dx: 0, dy: 0, s: 1 });
+      d.s = HUDUI.slider.value / 100;
+      colocarHUD(item.el, d);
+      HUDUI.valor.textContent = Math.round(d.s * 100) + '%';
+    });
+    // Mientras se edita, los botones del HUD no ejecutan sus acciones (disparar, pausa, etc.)
+    document.addEventListener('click', e => {
+      if (HUDEditor.activa && e.target.closest && e.target.closest('#hud')) { e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
+    // La barra del editor se puede mover arrastrando el título
+    (function () {
+      let ar = null;
+      HUDUI.titulo.addEventListener('pointerdown', e => {
+        const r = HUDUI.barra.getBoundingClientRect();
+        ar = { dx: e.clientX - (r.left + r.width / 2), dy: e.clientY - (r.top + r.height / 2), pid: e.pointerId };
+        try { HUDUI.titulo.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      HUDUI.titulo.addEventListener('pointermove', e => {
+        if (!ar || ar.pid !== e.pointerId) return;
+        const r = HUDUI.barra.getBoundingClientRect();
+        const cx = Math.max(r.width / 2, Math.min(window.innerWidth - r.width / 2, e.clientX - ar.dx));
+        const cy = Math.max(r.height / 2, Math.min(window.innerHeight - r.height / 2, e.clientY - ar.dy));
+        HUDUI.barra.style.left = cx + 'px'; HUDUI.barra.style.top = cy + 'px';
+      });
+      const fin = () => { ar = null; };
+      HUDUI.titulo.addEventListener('pointerup', fin);
+      HUDUI.titulo.addEventListener('pointercancel', fin);
+    })();
+    HUDUI.btnAbrir.addEventListener('click', abrirEditorHUD);
+    HUDUI.btnGuardar.addEventListener('click', guardarEditorHUD);
+    HUDUI.btnCancelar.addEventListener('click', cancelarEditorHUD);
+    HUDUI.btnReset.addEventListener('click', restablecerEditorHUD);
+    // ===== JOYSTICK DE MOVIMIENTO (SOLO MODO SIMULADOR) =====
+    const Joystick = { x: 0, y: 0, pid: null };
+    const JOYUI = { base: document.getElementById('joystick'), knob: document.getElementById('joystick-knob') };
+    function mostrarJoystick(visible) {
+      JOYUI.base.classList.toggle('hidden', !visible);
+      reiniciarJoystick();
+    }
+    function reiniciarJoystick() {
+      Joystick.x = 0; Joystick.y = 0; Joystick.pid = null;
+      JOYUI.knob.style.transform = 'translate(0px, 0px)';
+    }
+    function moverPalancaJoystick(e) {
+      const r = JOYUI.base.getBoundingClientRect();
+      const radioPantalla = r.width / 2;
+      const recorrido = radioPantalla * 0.6;               // hasta dónde llega el botón central
+      let nx = (e.clientX - (r.left + r.width / 2)) / recorrido;
+      let ny = (e.clientY - (r.top + r.height / 2)) / recorrido;
+      const largo = Math.hypot(nx, ny);
+      if (largo > 1) { nx /= largo; ny /= largo; }
+      Joystick.x = nx; Joystick.y = -ny;                    // arriba = avanzar
+      const local = (JOYUI.base.offsetWidth / 2) * 0.6;     // desplazamiento visual (sin escala)
+      JOYUI.knob.style.transform = 'translate(' + (nx * local) + 'px, ' + (ny * local) + 'px)';
+    }
+    JOYUI.base.addEventListener('pointerdown', e => {
+      if (!MODO_SIMULADOR || HUDEditor.activa || isPaused) return;
+      e.preventDefault();
+      Joystick.pid = e.pointerId;
+      try { JOYUI.base.setPointerCapture(e.pointerId); } catch (_) {}
+      moverPalancaJoystick(e);
+    });
+    JOYUI.base.addEventListener('pointermove', e => {
+      if (Joystick.pid !== e.pointerId) return;
+      moverPalancaJoystick(e);
+    });
+    const soltarJoystick = e => { if (Joystick.pid === e.pointerId) reiniciarJoystick(); };
+    JOYUI.base.addEventListener('pointerup', soltarJoystick);
+    JOYUI.base.addEventListener('pointercancel', soltarJoystick);
+    function actualizarMovimientoJugador(delta) {
+      const C = CONFIG.JOYSTICK;
+      if (!C.ACTIVO || !camera) return;
+      const mag = Math.hypot(Joystick.x, Joystick.y);
+      if (mag < C.ZONA_MUERTA) return;
+      const fuerza = (Math.min(mag, 1) - C.ZONA_MUERTA) / (1 - C.ZONA_MUERTA);
+      const ax = Joystick.x / mag, ay = Joystick.y / mag;   // dirección: ax = derecha, ay = adelante
+      const yaw = camera.rotation.y;                        // solo la dirección horizontal de la vista
+      const dist = C.VELOCIDAD * fuerza * delta;
+      let px = camera.position.x + (-Math.sin(yaw) * ay + Math.cos(yaw) * ax) * dist;
+      let pz = camera.position.z + (-Math.cos(yaw) * ay - Math.sin(yaw) * ax) * dist;
+      if (C.COLISIONES_JUGADOR) {
+        for (let pasada = 0; pasada < 2; pasada++) {
+          for (const o of colisionadores) {
+            const dx = px - o.x, dz = pz - o.z, d = Math.hypot(dx, dz), minimo = o.r + C.RADIO_JUGADOR;
+            if (d < minimo) {                                // empuja al jugador fuera (se desliza por el borde)
+              if (d > 1e-5) { px = o.x + dx / d * minimo; pz = o.z + dz / d * minimo; }
+              else px = o.x + minimo;
+            }
+          }
+        }
+      }
+      px = Math.max(-C.LIMITE_MAPA, Math.min(C.LIMITE_MAPA, px));
+      pz = Math.max(-C.LIMITE_MAPA, Math.min(C.LIMITE_MAPA, pz));
+      camera.position.x = px; camera.position.z = pz;
+    }
+    // ===== ENTORNO DEL SIMULADOR: ÁRBOLES, ROCAS Y COLISIONES =====
+    let obstaculos = [];
+    let colisionadores = [];   // círculos (x, z, r) con los que choca el jugador
+    const raycasterBalas = new THREE.Raycaster();
+    function crearGeneradorAleatorio(semilla) {
+      let a = semilla >>> 0;
+      return function () {
+        a = (a + 0x6D2B79F5) >>> 0;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function crearGeometriaRoca(azar) {
+      const geo = new THREE.IcosahedronGeometry(1, 1);
+      const pos = geo.attributes.position;
+      const memoria = new Map();
+      for (let i = 0; i < pos.count; i++) {
+        const k = pos.getX(i).toFixed(3) + ',' + pos.getY(i).toFixed(3) + ',' + pos.getZ(i).toFixed(3);
+        if (!memoria.has(k)) memoria.set(k, 0.75 + azar() * 0.5);
+        const f = memoria.get(k);
+        pos.setXYZ(i, pos.getX(i) * f, pos.getY(i) * f, pos.getZ(i) * f);
+      }
+      geo.computeVertexNormals();
+      geo.computeBoundingSphere();
+      return geo;
+    }
+    function crearEntorno(alturaSuelo) {
+      const E = CONFIG.ENTORNO;
+      const azar = crearGeneradorAleatorio(E.SEMILLA);
+      obstaculos = [];
+      colisionadores = [];
+      const colocados = [];
+      // Materiales y geometrías compartidos (más ligero)
+      const matTronco = new THREE.MeshStandardMaterial({ color: E.COLOR_TRONCO, roughness: 1, flatShading: true });
+      const matCopas = E.COLORES_COPA.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, flatShading: true }));
+      const matRocas = E.COLORES_ROCA.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 1, flatShading: true }));
+      const geoTronco = new THREE.CylinderGeometry(0.15, 0.22, 2, 8);
+      const geoCopas = [
+        { geo: new THREE.ConeGeometry(1.4, 2.2, 8), y: 2.6 },
+        { geo: new THREE.ConeGeometry(1.1, 1.9, 8), y: 3.6 },
+        { geo: new THREE.ConeGeometry(0.75, 1.5, 8), y: 4.5 }
+      ];
+      const geoRocas = [crearGeometriaRoca(azar), crearGeometriaRoca(azar), crearGeometriaRoca(azar), crearGeometriaRoca(azar)];
+      function buscarPosicion(radio) {
+        for (let intento = 0; intento < 40; intento++) {
+          const ang = azar() * Math.PI * 2;
+          const dist = E.DISTANCIA_MIN + Math.sqrt(azar()) * (E.DISTANCIA_MAX - E.DISTANCIA_MIN);
+          const x = Math.cos(ang) * dist, z = Math.sin(ang) * dist;
+          const libre = colocados.every(o => Math.hypot(o.x - x, o.z - z) > o.r + radio + E.SEPARACION);
+          if (libre) { colocados.push({ x, z, r: radio }); return { x, z }; }
+        }
+        return null;
+      }
+      for (let i = 0; i < E.ARBOLES; i++) {
+        const esc = E.ESCALA_ARBOL_MIN + azar() * (E.ESCALA_ARBOL_MAX - E.ESCALA_ARBOL_MIN);
+        const sitio = buscarPosicion(1.4 * esc);
+        if (!sitio) continue;
+        const arbol = new THREE.Group();
+        const tronco = new THREE.Mesh(geoTronco, matTronco); tronco.position.y = 1;
+        arbol.add(tronco);
+        const matCopa = matCopas[Math.floor(azar() * matCopas.length)];
+        geoCopas.forEach(c => { const m = new THREE.Mesh(c.geo, matCopa); m.position.y = c.y; arbol.add(m); });
+        arbol.scale.setScalar(esc);
+        arbol.rotation.y = azar() * Math.PI * 2;
+        arbol.position.set(sitio.x, alturaSuelo, sitio.z);
+        scene.add(arbol); obstaculos.push(arbol);
+        colisionadores.push({ x: sitio.x, z: sitio.z, r: E.COLISION_ARBOL * esc });
+      }
+      for (let i = 0; i < E.ROCAS; i++) {
+        const esc = E.ESCALA_ROCA_MIN + azar() * (E.ESCALA_ROCA_MAX - E.ESCALA_ROCA_MIN);
+        const sitio = buscarPosicion(esc);
+        if (!sitio) continue;
+        const roca = new THREE.Mesh(geoRocas[Math.floor(azar() * geoRocas.length)], matRocas[Math.floor(azar() * matRocas.length)]);
+        roca.scale.set(esc * (0.9 + azar() * 0.5), esc * (0.55 + azar() * 0.35), esc * (0.9 + azar() * 0.5));
+        roca.rotation.y = azar() * Math.PI * 2;
+        roca.position.set(sitio.x, alturaSuelo + roca.scale.y * 0.35, sitio.z); // semienterrada
+        scene.add(roca); obstaculos.push(roca);
+        colisionadores.push({ x: sitio.x, z: sitio.z, r: Math.max(roca.scale.x, roca.scale.z) * E.COLISION_ROCA });
+      }
+      scene.updateMatrixWorld(true);
+    }
+    // Devuelve { punto, normal } si el tramo recorrido por la bala golpea un árbol o roca
+    function detectarImpactoObstaculo(origen, direccion, distancia) {
+      raycasterBalas.set(origen, direccion);
+      raycasterBalas.near = 0;
+      raycasterBalas.far = distancia + 0.02;
+      const hits = raycasterBalas.intersectObjects(obstaculos, true);
+      if (!hits.length) return null;
+      const h = hits[0];
+      const normal = h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld) : direccion.clone().negate();
+      return { punto: h.point.clone(), normal };
+    }
+    function efectosImpactoObstaculo(imp, direccion) {
+      crearExplosionPolvo(imp.punto.clone());
+      const reflejo = direccion.clone().reflect(imp.normal);
+      for (let k = 0; k < CONFIG.CHISPAS.CANTIDAD; k++) {
+        const dir = reflejo.clone().add(new THREE.Vector3((Math.random()-0.5)*0.8, (Math.random()-0.5)*0.8, (Math.random()-0.5)*0.8)).normalize();
+        chispas.push(crearChispaCilindrica(imp.punto.clone().addScaledVector(imp.normal, 0.01), dir));
+      }
+    }
+    // ===== GIROSCOPIO (SOLO MODO SIMULADOR) =====
+    // Los ajustes se editan en CONFIG.GIROSCOPIO (arriba del script).
+    const Giroscopio = {
+      activo: false, recibido: false,
+      alpha: 0, beta: 0, gamma: 0,
+      iniciado: false,
+      yawPrev: 0, pitchPrev: 0,      // última lectura del teléfono (radianes)
+      yawObj: 0, pitchObj: 0,        // hacia dónde quiere mirar el jugador
+      yawAct: 0, pitchAct: 0,        // lo que realmente se muestra (suavizado)
+      rollAct: 0,                    // inclinación lateral mostrada (suavizada)
+      qDisp: new THREE.Quaternion(),
+      euler: new THREE.Euler(),
+      q1: new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5)),
+      q0: new THREE.Quaternion(),
+      eje: new THREE.Vector3(0, 0, 1),
+      listener: null
+    };
+    async function activarGiroscopio() {
+      if (!CONFIG.GIROSCOPIO.ACTIVO) return;
+      if (typeof DeviceOrientationEvent === 'undefined') return;
+      try {
+        // iOS exige permiso explícito (debe pedirse desde un toque del usuario)
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+          const r = await DeviceOrientationEvent.requestPermission();
+          if (r !== 'granted') return;
+        }
+      } catch (e) { console.warn('Giroscopio no autorizado', e); return; }
+      Giroscopio.recibido = false;
+      Giroscopio.iniciado = false;
+      Giroscopio.listener = (e) => {
+        if (e.alpha === null || e.beta === null || e.gamma === null) return;
+        Giroscopio.alpha = e.alpha; Giroscopio.beta = e.beta; Giroscopio.gamma = e.gamma;
+        Giroscopio.recibido = true;
+      };
+      window.addEventListener('deviceorientation', Giroscopio.listener);
+      Giroscopio.activo = true;
+    }
+    function desactivarGiroscopio() {
+      if (Giroscopio.listener) window.removeEventListener('deviceorientation', Giroscopio.listener);
+      Giroscopio.listener = null; Giroscopio.activo = false;
+      Giroscopio.recibido = false; Giroscopio.iniciado = false; Giroscopio.rollAct = 0;
+    }
+    // Vuelve a fijar "al frente" la dirección actual del teléfono (puedes llamarla desde un botón)
+    function recentrarGiroscopio() { Giroscopio.iniciado = false; Giroscopio.yawObj = 0; Giroscopio.yawAct = 0; }
+    // Centra TOTALMENTE la cámara (doble toque): izquierda/derecha Y arriba/abajo al horizonte,
+    // sin importar hacia dónde esté apuntando el teléfono. Solo se usa en el Simulador.
+    function recentrarCamaraCompleta() {
+      const G = Giroscopio;
+      if (!G.activo || !G.recibido) { recentrarGiroscopio(); return; } // sin datos del giro: fallback
+      const lectura = leerAngulosTelefono();
+      G.yawPrev = lectura.yaw; G.pitchPrev = lectura.pitch; // los deltas futuros se miden desde la orientación actual del teléfono
+      G.yawObj = 0;   G.yawAct = 0;     // centro horizontal (frente)
+      G.pitchObj = 0; G.pitchAct = 0;   // centro vertical = horizonte (mirando perfectamente al frente)
+      G.iniciado = true;                // evita que la calibración inicial sobreescriba el pitch con la inclinación del teléfono
+    }
+    function leerAngulosTelefono() {
+      const G = Giroscopio, D = Math.PI / 180;
+      const orient = ((screen.orientation && screen.orientation.angle) || window.orientation || 0) * D;
+      G.euler.set(G.beta * D, G.alpha * D, -G.gamma * D, 'YXZ');
+      G.qDisp.setFromEuler(G.euler);
+      G.qDisp.multiply(G.q1);
+      G.qDisp.multiply(G.q0.setFromAxisAngle(G.eje, -orient));
+      const e = new THREE.Euler().setFromQuaternion(G.qDisp, 'YXZ');
+      return { yaw: e.y, pitch: e.x, roll: e.z };
+    }
+    function diferenciaAngulo(a, b) {
+      let d = a - b;
+      while (d > Math.PI) d -= Math.PI * 2;
+      while (d < -Math.PI) d += Math.PI * 2;
+      return d;
+    }
+    function actualizarGiroscopio() {
+      const G = Giroscopio, C = CONFIG.GIROSCOPIO;
+      if (!G.activo || !G.recibido || !camera) return;
+      const D = Math.PI / 180;
+      const lectura = leerAngulosTelefono();
+      // Primera lectura (o recentrado): fija el "frente"
+      if (!G.iniciado) {
+        G.yawPrev = lectura.yaw; G.pitchPrev = lectura.pitch;
+        if (!C.CALIBRAR_AL_INICIAR) { G.yawObj = lectura.yaw; G.yawAct = lectura.yaw; }
+        if (C.MANTENER_PITCH_INICIAL) { G.pitchObj = lectura.pitch; G.pitchAct = lectura.pitch; }
+        G.iniciado = true;
+      }
+      // Cambio de ángulo desde el fotograma anterior
+      let dYaw = diferenciaAngulo(lectura.yaw, G.yawPrev);
+      let dPitch = lectura.pitch - G.pitchPrev;
+      G.yawPrev = lectura.yaw; G.pitchPrev = lectura.pitch;
+      // Zona muerta (ignora movimientos diminutos)
+      const zona = C.ZONA_MUERTA * D;
+      if (Math.abs(dYaw) < zona) dYaw = 0;
+      if (Math.abs(dPitch) < zona) dPitch = 0;
+      // Sensibilidad e inversión
+      G.yawObj += dYaw * C.SENSIBILIDAD_X * (C.INVERTIR_X ? -1 : 1);
+      G.pitchObj += dPitch * C.SENSIBILIDAD_Y * (C.INVERTIR_Y ? -1 : 1);
+      // Límites verticales
+      G.pitchObj = Math.max(-C.LIMITE_ABAJO * D, Math.min(C.LIMITE_ARRIBA * D, G.pitchObj));
+      // Suavizado (0 = directo)
+      const k = 1 - Math.max(0, Math.min(0.95, C.SUAVIZADO));
+      G.yawAct += (G.yawObj - G.yawAct) * k;
+      G.pitchAct += (G.pitchObj - G.pitchAct) * k;
+      // Inclinación lateral (el arma va dentro de la cámara, así que se inclina con ella)
+      const limRoll = C.LIMITE_INCLINACION * D;
+      const rollObj = Math.max(-limRoll, Math.min(limRoll,
+        lectura.roll * C.INCLINACION_LATERAL * (C.INVERTIR_INCLINACION ? -1 : 1)));
+      const kRoll = 1 - Math.max(0, Math.min(0.95, C.SUAVIZADO_INCLINACION));
+      G.rollAct += (rollObj - G.rollAct) * kRoll;
+      camera.rotation.order = 'YXZ';
+      camera.rotation.set(G.pitchAct, G.yawAct, G.rollAct);
+    }
+    async function iniciarSimulador() { MODO_SIMULADOR = true; activarGiroscopio(); arrancarJuego(); }
+    async function iniciarAR() {
+      if (!navigator.xr) { UI.estadoXR.textContent = '❌ WebXR no disponible. Usa Chrome en Android.'; return; }
+      const soportado = await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
+      if (!soportado) { UI.estadoXR.textContent = '❌ AR no soportado en este dispositivo.'; return; }
+      MODO_SIMULADOR = false; arrancarJuego();
+    }
+       async function arrancarJuego() {
+      try {
+        isPaused = false;
+        UI.pausa.classList.add('hidden');
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.01, 100);
+        scene.add(camera);
+        // Luces de efectos fijas (intensidad 0 hasta que se usan): el número de luces nunca cambia
+        luzFogonazo = new THREE.PointLight(0xffcc00, 0, 1.5); scene.add(luzFogonazo);
+        luzImpacto = new THREE.PointLight(0xffddaa, 0, 1.2); scene.add(luzImpacto);
+        tFogonazo = 0; tImpacto = 0;
+        // CONFIGURACIÓN EXCLUSIVA PARA EL MODO SIMULADOR (ENTORNO DE CAMPO Y CIELO)
+        if (MODO_SIMULADOR) {
+          // Cielo azul claro
+          scene.background = new THREE.Color(0x87CEEB);
+          // Neblina (solo Simulador)
+          if (CONFIG.NEBLINA.ACTIVA) {
+            scene.fog = new THREE.Fog(CONFIG.NEBLINA.COLOR, CONFIG.NEBLINA.CERCA, CONFIG.NEBLINA.LEJOS);
+            scene.background = new THREE.Color(CONFIG.NEBLINA.COLOR);
+          }
+          UI.indicadorModo.classList.remove('hidden');
+          // Suelo de pasto verde (Plano grande)
+          const geometrySuelo = new THREE.PlaneGeometry(100, 100);
+          const materialSuelo = new THREE.MeshStandardMaterial({ 
+            color: 0x3b7a2b, 
+            roughness: 0.8,
+            metalness: 0.1 
+          });
+          const suelo = new THREE.Mesh(geometrySuelo, materialSuelo);
+          suelo.rotation.x = -Math.PI / 2; // Acostar el plano horizontalmente
+          suelo.position.y = -1.5;         // Situarlo debajo de la cámara del jugador
+          scene.add(suelo);
+          // Luz ambiental y direccional ajustada para simular luz de día al aire libre
+          const luzDia = new THREE.DirectionalLight(0xffffff, 1.2);
+          luzDia.position.set(10, 20, 10);
+          scene.add(luzDia);
+          if (CONFIG.ENTORNO.LUZ_AMBIENTE > 0) scene.add(new THREE.HemisphereLight(0xffffff, 0x3b7a2b, CONFIG.ENTORNO.LUZ_AMBIENTE));
+          // Árboles y rocas con colisiones
+          crearEntorno(suelo.position.y);
+        }
+        
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: !MODO_SIMULADOR, powerPreference: 'high-performance' });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.xr.enabled = !MODO_SIMULADOR;
+        document.body.appendChild(renderer.domElement);
+        // ===== DOBLE TOQUE PARA RECENTRAR CÁMARA (SOLO MODO SIMULADOR) =====
+        // Toca dos veces seguidas la vista (no los botones) para centrar la cámara.
+        // Útil cuando el giroscopio está desalineado o el teléfono mal posicionado.
+        if (MODO_SIMULADOR) {
+          let _ultToque = 0, _ultX = 0, _ultY = 0;
+          const _TOPE_MS = 320, _TOPE_PX = 60;
+          renderer.domElement.addEventListener('pointerdown', function (e) {
+            if (isPaused || HUDEditor.activa) return;
+            const ahora = performance.now();
+            const dx = e.clientX - _ultX, dy = e.clientY - _ultY;
+            if (ahora - _ultToque < _TOPE_MS && dx * dx + dy * dy < _TOPE_PX * _TOPE_PX) {
+              recentrarCamaraCompleta();
+              _ultToque = 0; // reinicia para no contar un tercer toque
+              // Feedback visual breve y sutil
+              const fb = document.createElement('div');
+              fb.textContent = 'Vista centrada';
+              fb.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:200;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(254,240,138,0.95);background:rgba(0,0,0,0.55);padding:0.45rem 1.1rem;border-radius:2rem;border:1px solid rgba(234,179,8,0.4);transition:opacity 0.4s ease;';
+              document.body.appendChild(fb);
+              setTimeout(function () { fb.style.opacity = '0'; }, 380);
+              setTimeout(function () { fb.remove(); }, 900);
+            } else {
+              _ultToque = ahora; _ultX = e.clientX; _ultY = e.clientY;
+            }
+          });
+        }
+        
+        if (!MODO_SIMULADOR) {
+          scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+          const l1 = new THREE.DirectionalLight(0xffffff, 2), l2 = new THREE.DirectionalLight(0xffffff, 1.5);
+          l1.position.set(2,3,3); l2.position.set(-2,2,2);
+          scene.add(l1, l2);
+        }
+        
+        puntoSalidaCañon = new THREE.Object3D();
+        new THREE.GLTFLoader().load(CONFIG.MODELO_ARMA,
+          gltf => {
+            gun = gltf.scene;
+            gun.scale.setScalar(CONFIG.ESCALA_ARMA);
+            gun.position.set(CONFIG.POS_CADERA.x, CONFIG.POS_CADERA.y, CONFIG.POS_CADERA.z);
+            gun.rotation.set(CONFIG.ROT_CADERA.x, CONFIG.ROT_CADERA.y, CONFIG.ROT_CADERA.z);
+            actualizarPosicionCañon();
+            gun.add(puntoSalidaCañon);
+            camera.add(gun);
+            UI.estadoCarga.textContent = '✅ Listo';
+            setTimeout(()=>UI.estadoCarga.classList.add('hidden'), 2000);
+          },
+          prog => { UI.estadoCarga.textContent = `Cargando... ${Math.round((prog.loaded/prog.total)*100)}%`; },
+          () => {
+            gun = crearArmaPrueba();
+            actualizarPosicionCañon();
+            gun.add(puntoSalidaCañon);
+            camera.add(gun);
+            UI.estadoCarga.textContent = '⚠️ Arma de prueba';
+            UI.estadoCarga.style.color = '#ffcc00';
+            setTimeout(()=>UI.estadoCarga.classList.add('hidden'), 2500);
+          }
+        );
+        
+        if (!MODO_SIMULADOR) {
+          xrSession = await navigator.xr.requestSession('immersive-ar', { optionalFeatures: ['local-floor','dom-overlay'], domOverlay: {root: document.body} });
+          renderer.xr.setReferenceSpaceType('local-floor');
+          await renderer.xr.setSession(xrSession);
+          xrSession.addEventListener('end', salirAlMenu);
+        }
+        
+        UI.inicio.classList.add('hidden'); UI.hud.classList.remove('hidden');
+        cargarLayoutHUD();
+        MODO_SIMULADOR ? requestAnimationFrame(animar) : renderer.setAnimationLoop(animar);
+      } catch(err) { UI.estadoCarga.textContent = '❌ ' + err.message; UI.estadoCarga.style.color = '#f87171'; console.error(err); }
+    }
+    let tiempo = 0, tiempoAnterior = performance.now();
+    const Diag = { el: null, frames: 0, peor: 0, ultimo: 0, inicio: 0, dedos: new Set() };
+    function medirFPS() {
+      const ahora = performance.now();
+      if (!Diag.el) {
+        Diag.el = document.createElement('div');
+        Diag.el.style.cssText = 'position:fixed;top:4px;left:4px;z-index:9999;pointer-events:none;font:11px monospace;color:#0f0;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px';
+        document.body.appendChild(Diag.el);
+        const ag = e => { if (e.pointerType === 'touch') Diag.dedos.add(e.pointerId); };
+        const qt = e => Diag.dedos.delete(e.pointerId);
+        window.addEventListener('pointerdown', ag, { capture: true, passive: true });
+        window.addEventListener('pointerup', qt, { capture: true, passive: true });
+        window.addEventListener('pointercancel', qt, { capture: true, passive: true });
+        Diag.inicio = ahora; Diag.ultimo = ahora;
+      }
+      Diag.frames++;
+      Diag.peor = Math.max(Diag.peor, ahora - Diag.ultimo);
+      Diag.ultimo = ahora;
+      if (ahora - Diag.inicio >= 1000) {
+        Diag.el.textContent = 'FPS ' + Diag.frames + ' | peor ' + Math.round(Diag.peor) + 'ms | dedos ' + Diag.dedos.size;
+        Diag.frames = 0; Diag.peor = 0; Diag.inicio = ahora;
+      }
+    }
+    function animar(t, frame) {
+      if (CONFIG.DEBUG.MOSTRAR_FPS) medirFPS();
+      const ahora = performance.now();
+      const delta = Math.min((ahora-tiempoAnterior)/1000, 0.1);
+      tiempoAnterior = ahora;
+      if (MODO_SIMULADOR) { requestAnimationFrame(animar); actualizarGiroscopio(); }
+      if (isPaused) {
+        renderer.render(scene, camera);
+        return;
+      }
+      tiempo += delta;
+      if (MODO_SIMULADOR) actualizarMovimientoJugador(delta);
+      actualizarBalasYEfectos(delta);
+      if (!gun) { renderer.render(scene, camera); return; }
+      
+      if (isInspecting) {
+        const prog = Math.min((tiempo-tiempoInspeccion)*1000/CONFIG.INSPECCION.duracion, 1);
+        const giro = CONFIG.ROT_CADERA.y + prog*Math.PI*2;
+        const oscX = Math.sin(prog*Math.PI*4)*0.15;
+        gun.position.x += (0 - gun.position.x)*CONFIG.INSPECCION.suavizado;
+        gun.position.y += (-0.15 - gun.position.y)*CONFIG.INSPECCION.suavizado;
+        gun.position.z += (-0.5 - gun.position.z)*CONFIG.INSPECCION.suavizado;
+        gun.rotation.x += (oscX - gun.rotation.x)*CONFIG.INSPECCION.suavizado;
+        gun.rotation.y += (giro - gun.rotation.y)*CONFIG.INSPECCION.suavizado;
+        gun.rotation.z += (0 - gun.rotation.z)*CONFIG.INSPECCION.suavizado;
+        if (prog >= 1) { isInspecting = false; UI.textoModo.textContent = 'Cadera'; }
+      } else if (isReloading) {
+        const prog = Math.min((tiempo-tiempoRecarga)*1000/CONFIG.RECARGA.duracion, 1);
+        const fase = Math.sin(prog*Math.PI);
+        const objY = CONFIG.POS_CADERA.y + CONFIG.RECARGA.despY*fase;
+        const objZ = CONFIG.POS_CADERA.z + CONFIG.RECARGA.despZ*fase;
+        const objRX = CONFIG.RECARGA.rotX*fase;
+        const objRZ = CONFIG.RECARGA.rotZ*Math.sin(prog*Math.PI*2) - 0.15;
+        gun.position.x += (CONFIG.POS_CADERA.x - gun.position.x)*CONFIG.RECARGA.suavizado;
+        gun.position.y += (objY - gun.position.y)*CONFIG.RECARGA.suavizado;
+        gun.position.z += (objZ - gun.position.z)*CONFIG.RECARGA.suavizado;
+        gun.rotation.x += (objRX - gun.rotation.x)*CONFIG.RECARGA.suavizado;
+        gun.rotation.y += (CONFIG.ROT_CADERA.y - gun.rotation.y)*CONFIG.RECARGA.suavizado;
+        gun.rotation.z += (objRZ - gun.rotation.z)*CONFIG.RECARGA.suavizado;
+      } else {
+        const resp = isAiming ? CONFIG.RESP.ads : CONFIG.RESP.cadera;
+        const ciclo = Math.sin(tiempo*resp.vel);
+        const basePos = isAiming ? CONFIG.POS_APUNTAR : CONFIG.POS_CADERA;
+        const baseRot = isAiming ? CONFIG.ROT_APUNTAR : CONFIG.ROT_CADERA;
+        gun.position.x += (basePos.x - gun.position.x)*CONFIG.SUAVIZADO;
+        gun.position.y += (basePos.y + ciclo*resp.y - gun.position.y)*CONFIG.SUAVIZADO;
+        gun.position.z += (basePos.z + ciclo*resp.z - gun.position.z)*CONFIG.SUAVIZADO;
+        gun.rotation.x += (baseRot.x + ciclo*resp.rotX - gun.rotation.x)*CONFIG.SUAVIZADO;
+        gun.rotation.y += (baseRot.y - gun.rotation.y)*CONFIG.SUAVIZADO;
+        gun.rotation.z += (baseRot.z - gun.rotation.z)*CONFIG.SUAVIZADO;
+      }
+      renderer.render(scene, camera);
+    }
+    function pausarJuego() {
+      if (isPaused) return;
+      isPaused = true;
+      UI.pausa.classList.remove('hidden');
+    }
+    function reanudarJuego() {
+      if (!isPaused) return;
+      isPaused = false;
+      tiempoAnterior = performance.now();
+      UI.pausa.classList.add('hidden');
+    }
+    function salirAlMenu() {
+      isPaused = false;
+      UI.pausa.classList.add('hidden');
+      UI.hud.classList.add('hidden');
+      UI.indicadorModo.classList.add('hidden');
+      desactivarGiroscopio();
+      UI.inicio.classList.remove('hidden');
+      if (xrSession) {
+        xrSession.end().catch(()=>{});
+        xrSession = null;
+      }
+      if (renderer) {
+        if (!MODO_SIMULADOR) renderer.setAnimationLoop(null);
+        if (renderer.domElement && renderer.domElement.parentNode) {
+          renderer.domElement.parentNode.removeChild(renderer.domElement);
+        }
+        renderer.dispose();
+        renderer = null;
+      }
+      balas.forEach(b => { scene.remove(b.mesh); b.mesh.geometry.dispose(); b.material.dispose(); });
+      chispas.forEach(c => { scene.remove(c.mesh); c.mesh.geometry.dispose(); c.mesh.material.dispose(); });
+      polvo.forEach(p => { scene.remove(p.mesh); p.mesh.geometry.dispose(); p.mesh.material.dispose(); });
+      balas = []; chispas = []; polvo = []; obstaculos = []; colisionadores = [];
+      reiniciarPools(); luzFogonazo = null; luzImpacto = null; tFogonazo = 0; tImpacto = 0;
+      reiniciarJoystick();
+      gun = null;
+    }
+    function cancelarInspeccion() { if (!isInspecting) return; if (timerRecarga) clearTimeout(timerRecarga); isInspecting = false; UI.textoModo.textContent = 'Cadera'; }
+    function recargar() {
+      if (isPaused || isReloading || ammo === CONFIG.MUNICION_MAX) return;
+      if (isInspecting && CONFIG.INSPECCION.permitirCancelar) cancelarInspeccion();
+      recargarSonido();
+      isReloading = true; tiempoRecarga = tiempo;
+      UI.estadoCarga.textContent = 'Recargando...'; UI.estadoCarga.classList.remove('hidden');
+      timerRecarga = setTimeout(() => {
+        ammo = CONFIG.MUNICION_MAX; UI.textoMunicion.textContent = ammo;
+        isReloading = false; UI.estadoCarga.textContent = 'Recargada';
+        setTimeout(()=>UI.estadoCarga.classList.add('hidden'), 1000);
+      }, CONFIG.RECARGA.duracion);
+    }
+    function disparar() {
+      if (isPaused) return;
+      const ahora = Date.now();
+      if (ahora - ultimoDisparo < CONFIG.CADENCIA_DISPARO) return;
+      if (isInspecting && CONFIG.INSPECCION.permitirCancelar) { cancelarInspeccion(); return; }
+      if (isReloading) return;
+      if (ammo <= 0) {
+        vacioSonido(); UI.estadoCarga.textContent = 'Sin munición'; UI.estadoCarga.style.color = '#ffcc00';
+        UI.estadoCarga.classList.remove('hidden'); setTimeout(()=>UI.estadoCarga.classList.add('hidden'), 1500);
+        return;
+      }
+      dispararSonido(); crearBala(); ammo--; UI.textoMunicion.textContent = ammo; ultimoDisparo = ahora;
+      if (gun && !retrocesoActivo) {
+        retrocesoActivo = true;
+        const r = isAiming ? CONFIG.RETRO.apuntar : CONFIG.RETRO.cadera;
+        gun.position.z += r.z; gun.position.y += r.y; gun.rotation.x += 0.02;
+        setTimeout(() => {
+          if (gun && !isReloading && !isInspecting) {
+            const destino = isAiming ? CONFIG.POS_APUNTAR : CONFIG.POS_CADERA;
+            gun.position.z = destino.z; gun.position.y = destino.y;
+            gun.rotation.x = isAiming ? CONFIG.ROT_APUNTAR.x : CONFIG.ROT_CADERA.x;
+          }
+          retrocesoActivo = false;
+        }, CONFIG.RETRO.duracion);
+      }
+    }
+    function apuntar() {
+      if (isPaused) return;
+      if (isInspecting && CONFIG.INSPECCION.permitirCancelar) { cancelarInspeccion(); return; }
+      if (isReloading) return;
+      isAiming = !isAiming;
+      actualizarPosicionCañon();
+      UI.crosshair.style.opacity = isAiming ? '0' : '1';
+      UI.textoModo.textContent = isAiming ? 'Apuntando' : 'Cadera';
+    }
+    function inspeccionar() {
+      if (isPaused) return;
+      if (isInspecting) { cancelarInspeccion(); return; }
+      if (isReloading) return;
+      isInspecting = true; isAiming = false;
+      actualizarPosicionCañon(); tiempoInspeccion = tiempo;
+      UI.crosshair.style.opacity = '1'; UI.textoModo.textContent = 'Inspección';
+    }
+    UI.btnSim.addEventListener('click', iniciarSimulador);
+    UI.btnAR.addEventListener('click', iniciarAR);
+    // MULTITOUCH: los botones de acción responden al instante a cada dedo (pointerdown),
+    // así puedes caminar con el joystick, apuntar y disparar al mismo tiempo.
+    function alPresionar(boton, accion) {
+      boton.addEventListener('pointerdown', () => {
+        if (HUDEditor.activa) return;   // mientras se edita el HUD no ejecutan acciones
+        accion();
+      }, { passive: true });
+    }
+    alPresionar(UI.btnApuntar, apuntar);
+    alPresionar(UI.btnDisparar, disparar);
+    alPresionar(UI.btnRecargar, recargar);
+    alPresionar(UI.btnInspeccion, inspeccionar);
+    
+    UI.btnPausa.addEventListener('click', pausarJuego);
+    UI.btnReanudar.addEventListener('click', reanudarJuego);
+    UI.btnSalir.addEventListener('click', salirAlMenu);
+    let resizePendiente = false, ultimoAncho = 0, ultimoAlto = 0;
+    window.addEventListener('resize', () => {
+      if (resizePendiente) return;
+      resizePendiente = true;
+      requestAnimationFrame(() => {
+        resizePendiente = false;
+        if (!camera || !renderer) return;
+        const w = window.innerWidth, h = window.innerHeight;
+        if (w === ultimoAncho && h === ultimoAlto) return;   // mismo tamaño: no hacer nada
+        ultimoAncho = w; ultimoAlto = h;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
+    });
+    window.addEventListener('resize', () => {
+      if (HUDEditor.cargado) aplicarLayoutHUD(HUDEditor.activa ? HUDEditor.borrador : HUDEditor.guardado);
+    });
+  </script>
+</body>
+</html>
