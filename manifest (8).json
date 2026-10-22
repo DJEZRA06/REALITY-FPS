@@ -1,0 +1,13 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "fullscreen",
+  "name": "djezra06.github",
+  "orientation": "portrait",
+  "scope": "/",
+  "short_name": "djezra06.github",
+  "start_url": "/REALITY-FPS/",
+  "theme_color": "#ffffff",
+  "description": "Juego en Realidad Aumentada",
+  "id": "REALITYFPS"
+}
