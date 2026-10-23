@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "io.REALITYFPS.djezra06.twa",
-        "sha256_cert_fingerprints": ["DF:17:48:FC:E8:A2:0F:0E:3C:C4:05:22:AA:1A:98:41:F4:8A:C6:DE:3E:9C:E3:2C:7C:28:FE:66:31:67:C5:42"]
+        "package_name": "io.github.djezra06.twa",
+        "sha256_cert_fingerprints": ["90:9A:F4:97:32:94:DC:A0:30:44:97:28:13:36:92:D5:4B:E0:17:D8:6C:A4:62:D9:F0:08:30:7F:84:97:0D:BD"]
       }
     }]
