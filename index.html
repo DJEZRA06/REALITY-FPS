@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>REALITY FPS V15 — Diagnóstico 🔍</title>
+  <title>REALITY FPS v13.5 (Con Giroscopio)</title>
   
   <link rel="preload" as="image" href="https://raw.githubusercontent.com/DJEZRA06/cosasrealityfps/main/pantalla%20inicial.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,27 +20,25 @@
     /* ========== PANTALLA INICIAL ========== */
     #start-screen {
       position: fixed; inset: 0; z-index: 300;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;  /* botones centrados */
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 0 1rem;
       background-color: #000;
       font-family: 'Inter', sans-serif;
     }
 
-    /* IMAGEN DE LA PANTALLA PRINCIPAL */
     .start-bg {
       position: absolute; inset: 0; z-index: 0; pointer-events: none;
       background-image: url("https://raw.githubusercontent.com/DJEZRA06/cosasrealityfps/main/pantalla%20inicial.jpg");
-      background-size: cover;          /* "contain" = ver la imagen completa con barras negras */
+      background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      opacity: 100;                      /* <<< OPACIDAD DE LA IMAGEN: 1 = normal, 0.5 = más oscura, 0 = invisible */
+      opacity: 1;
     }
 
-    /* Sombra suave en el centro para que los botones se lean */
     #start-screen::before {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 0%);
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 65%);
       pointer-events: none;
       z-index: 1;
     }
@@ -59,7 +57,6 @@
       z-index: 2;
     }
 
-    /* Los 2 botones, uno al lado del otro (en pantallas angostas se apilan) */
     .start-menu { display: flex; flex-direction: row; gap: 1.2rem; justify-content: center; width: 100%; max-width: 600px; }
     .start-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
     .start-item .hint-text { margin: 0; text-align: center; }
@@ -67,18 +64,14 @@
       .start-menu { flex-direction: column; max-width: 280px; }
     }
 
-    /* El título ya viene dentro de la imagen. Para mostrarlo otra vez: display: block */
-    /* Brillo del botón al pulsarlo */
-    .menu-btn.chispeando { animation: btn-chispa 0.25s ease-out; }
+    .menu-btn.chispeando { animation: btn-chispa 0.45s ease-out; }
     @keyframes btn-chispa {
       0%   { transform: scale(1);    box-shadow: 0 0 0 rgba(255,170,40,0); }
       35%  { transform: scale(1.07); box-shadow: 0 0 28px 6px rgba(255,170,40,0.85); border-color: #ffd27a; color: #fff; }
       100% { transform: scale(1);    box-shadow: 0 0 0 rgba(255,170,40,0); }
     }
 
-    .title-group { display: none; }
-
-    .title-group { text-align: center; margin-bottom: 2.5rem; }
+    .title-group { display: none; text-align: center; margin-bottom: 2.5rem; }
     
     .main-title {
       font-size: 2.2rem; font-weight: 700; letter-spacing: 0.32em;
@@ -185,7 +178,7 @@
     .hud-buttons-center { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; }
     .hud-buttons-right { position: absolute; bottom: 2.5rem; right: 2rem; display: flex; flex-direction: column; gap: 1rem; }
     
-    /* Botón de Pausa en el HUD */
+    /* Botón de Pausa y Recalibrado */
     .btn-pause-hud {
       position: absolute; top: 1.5rem; right: 1.5rem;
       width: 3.2rem; height: 3.2rem; border-radius: 50%;
@@ -197,6 +190,19 @@
       transition: transform 0.2s ease, background-color 0.2s ease;
     }
     .btn-pause-hud:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+    
+    .btn-recal-hud {
+      position: absolute; top: 1.5rem; left: 1.5rem;
+      width: 3.2rem; height: 3.2rem; border-radius: 50%;
+      border: 1px solid rgba(6,182,212,0.5);
+      background: rgba(0,0,0,0.55);
+      color: #a5f3fc; font-size: 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: auto; cursor: pointer; z-index: 105;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .btn-recal-hud:active { transform: scale(0.9); background: rgba(6,182,212,0.3); }
+
     .status-text {
       position: absolute; bottom: 12rem; left: 50%; transform: translateX(-50%);
       font-size: 0.7rem; color: rgba(255,255,255,0.7);
@@ -205,7 +211,7 @@
       pointer-events: none;
     }
     .modo-badge {
-      position: absolute; top: 1rem; left: 1rem;
+      position: absolute; top: 5rem; left: 1rem;
       font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
       padding: 0.3rem 0.7rem; border-radius: 2rem;
       border: 1px solid rgba(234, 179, 8, 0.3);
@@ -226,7 +232,7 @@
       text-transform: uppercase; color: #fff; margin-bottom: 2rem;
       text-shadow: 0 0 20px rgba(255,255,255,0.2);
     }
-    /* ========== JOYSTICK (SOLO MODO SIMULADOR) ========== */
+    /* ========== JOYSTICK ========== */
     #joystick {
       position: absolute; left: 1.5rem; bottom: 8rem;
       width: 9rem; height: 9rem; border-radius: 50%;
@@ -304,7 +310,7 @@
         <button id="btn-sim" class="menu-btn menu-btn-primary">
           MODO SIMULADOR
         </button>
-        <p class="hint-text">Sin cámara · Prueba rápida</p>
+        <p class="hint-text">Giroscopio activo · Pantalla vertical</p>
       </div>
     </div>
     
@@ -315,6 +321,7 @@
   <div id="hud" class="hidden">
     <div id="modo-indicador" class="modo-badge hidden">MODO SIMULADOR</div>
     
+    <button id="btn-recal" class="btn-recal-hud" title="Recalibrar vista">🧭</button>
     <button id="btn-pause" class="btn-pause-hud">⏸</button>
     
     <div id="joystick" class="hidden"><div id="joystick-knob"></div></div>
@@ -336,6 +343,7 @@
     </div>
     <div class="hud-buttons-right"></div>
   </div>
+
   <!-- MENÚ DE PAUSA -->
   <div id="pause-menu" class="hidden">
     <h2 class="pause-title">PAUSA</h2>
@@ -351,6 +359,7 @@
       </button>
     </div>
   </div>
+
   <!-- EDITOR DE HUD -->
   <div id="hud-editor" class="hidden">
     <div id="hud-editor-titulo">Editar HUD</div>
@@ -366,84 +375,55 @@
       <button id="hud-save" class="hud-ed-btn ok">Guardar</button>
     </div>
   </div>
+
   <script>
     const CONFIG = {
       // ============================================================
-      //  JOYSTICK DE MOVIMIENTO (SOLO MODO SIMULADOR) - EDITA AQUÍ
+      //  GIROSCOPIO Y APUNTADO (MODO SIMULADOR)
       // ============================================================
+      GIROSCOPIO: {
+        ACTIVO: true,               // Control de cámara por giroscopio
+        SENSIBILIDAD: 1.0,          // Multiplicador general de velocidad de giro
+        SUAVIZADO: 0.25             // Suavizado del ángulo (0.1 a 1.0)
+      },
       JOYSTICK: {
-        ACTIVO: true,               // true = muestra el joystick y permite caminar en el Simulador
-        VELOCIDAD: 5.2,             // Velocidad máxima al caminar (metros por segundo)
-        ZONA_MUERTA: 0.12,          // Zona central del joystick que no mueve (0 a 1)
-        RADIO_JUGADOR: 0.35,        // Grosor del jugador para las colisiones (metros)
-        COLISIONES_JUGADOR: true,   // true = no puedes atravesar árboles ni rocas
-        LIMITE_MAPA: 47             // Hasta dónde puedes caminar desde el centro (el suelo mide 50)
+        ACTIVO: true,
+        VELOCIDAD: 5.2,
+        ZONA_MUERTA: 0.12,
+        RADIO_JUGADOR: 0.35,
+        COLISIONES_JUGADOR: true,
+        LIMITE_MAPA: 47
       },
-      // ============================================================
-      //  EDITOR DE HUD - EDITA AQUÍ A TU GUSTO
-      // ============================================================
       HUD: {
-        ESCALA_MIN: 0.5,                    // Tamaño mínimo permitido (0.5 = 50%)
-        ESCALA_MAX: 2.0,                    // Tamaño máximo permitido (2.0 = 200%)
-        CLAVE_GUARDADO: 'reality_fps_hud'   // Nombre base del guardado (se separa por modo: _simulador / _ar)
+        ESCALA_MIN: 0.5,
+        ESCALA_MAX: 2.0,
+        CLAVE_GUARDADO: 'reality_fps_hud'
       },
-      // ============================================================
-      //  ENTORNO DEL SIMULADOR (ÁRBOLES Y ROCAS) - EDITA AQUÍ
-      // ============================================================
       ENTORNO: {
-        ARBOLES: 28,                // Cantidad de árboles
-        ROCAS: 20,                  // Cantidad de rocas
-        DISTANCIA_MIN: 5,           // Distancia mínima al jugador (metros)
-        DISTANCIA_MAX: 42,          // Distancia máxima al jugador (metros)
-        SEPARACION: 1.5,            // Espacio mínimo entre objetos
-        SEMILLA: 7,                 // Cambia este número para otra distribución del terreno
-        ESCALA_ARBOL_MIN: 0.8,      // Tamaño mínimo de árboles
-        ESCALA_ARBOL_MAX: 1.5,      // Tamaño máximo de árboles
-        ESCALA_ROCA_MIN: 0.5,       // Tamaño mínimo de rocas
-        ESCALA_ROCA_MAX: 1.6,       // Tamaño máximo de rocas
-        COLISIONES: true,           // true = las balas chocan con árboles y rocas
-        COLISION_ARBOL: 0.45,       // Grosor de colisión del jugador con el tronco (metros por unidad de tamaño)
-        COLISION_ROCA: 0.95,        // Grosor de colisión del jugador con las rocas (multiplicador de su tamaño)
-        LUZ_AMBIENTE: 0.55,         // Luz suave para que no queden zonas totalmente oscuras (0 = nada)
+        ARBOLES: 48,
+        ROCAS: 20,
+        DISTANCIA_MIN: 5,
+        DISTANCIA_MAX: 42,
+        SEPARACION: 1.5,
+        SEMILLA: 7,
+        ESCALA_ARBOL_MIN: 0.8,
+        ESCALA_ARBOL_MAX: 1.5,
+        ESCALA_ROCA_MIN: 0.5,
+        ESCALA_ROCA_MAX: 1.6,
+        COLISIONES: true,
+        COLISION_ARBOL: 0.45,
+        COLISION_ROCA: 0.95,
+        LUZ_AMBIENTE: 0.55,
         COLOR_TRONCO: 0x6b4423,
         COLORES_COPA: [0x2d6a2d, 0x23591f, 0x347a35],
         COLORES_ROCA: [0x7d7d80, 0x6a6a6e, 0x8a8782]
       },
-      // ============================================================
-      //  GIROSCOPIO (SOLO MODO SIMULADOR) - EDITA AQUÍ A TU GUSTO
-      // ============================================================
-      GIROSCOPIO: {
-        ACTIVO: true,               // true = usa giroscopio en el Simulador, false = desactivado
-        SENSIBILIDAD_X: 1.0,        // Giro horizontal (izq/der). 1.0 = 1:1 con el teléfono, 2.0 = el doble de rápido
-        SENSIBILIDAD_Y: 1.0,        // Giro vertical (arriba/abajo)
-        SUAVIZADO: 0.35,            // 0 = sin suavizado (respuesta directa) ... 0.95 = muy suave pero con retraso
-        ZONA_MUERTA: 0.08,          // Grados por fotograma que se ignoran (quita temblor). 0 = sin zona muerta
-        INVERTIR_X: false,          // Invierte el giro horizontal
-        INVERTIR_Y: false,          // Invierte el giro vertical
-        LIMITE_ARRIBA: 85,          // Máximo ángulo mirando hacia arriba (grados, hasta 90)
-        LIMITE_ABAJO: 85,           // Máximo ángulo mirando hacia abajo (grados, hasta 90)
-        CALIBRAR_AL_INICIAR: true,  // true = al empezar, tu posición actual es "al frente"
-        MANTENER_PITCH_INICIAL: true, // true = respeta la inclinación vertical con que empiezas; false = empiezas mirando al horizonte
-        // --- Inclinación lateral (la cámara y el arma se ladean cuando inclinas el teléfono) ---
-        INCLINACION_LATERAL: 1.0,    // 0 = horizonte siempre recto (como antes) ... 1 = copia toda la inclinación del teléfono
-        SUAVIZADO_INCLINACION: 0.35,  // 0 = directo ... 0.95 = muy suave
-        INVERTIR_INCLINACION: false, // Invierte el sentido de la inclinación
-        LIMITE_INCLINACION: 65       // Máximo de inclinación lateral en grados
-      },
-      // ============================================================
-      //  NEBLINA (SOLO MODO SIMULADOR) - EDITA AQUÍ A TU GUSTO
-      //  Es niebla lineal de Three.js: casi no cuesta rendimiento.
-      // ============================================================
       NEBLINA: {
-        ACTIVA: true,               // true = hay neblina en el Simulador, false = sin neblina
-        COLOR: 0xa8d4ec,            // Color de la neblina (parecido al cielo para que se mezcle)
-        CERCA: 6,                   // Distancia (metros) donde empieza la neblina
-        LEJOS: 55                   // Distancia (metros) donde todo se ve totalmente cubierto
+        ACTIVA: true,
+        COLOR: 0xa8d4ec,
+        CERCA: 6,
+        LEJOS: 55
       },
-      // ============================================================
-      //  DIAGNÓSTICO: muestra FPS, el peor fotograma del último segundo y cuántos dedos tocan
-      //  la pantalla. Ponlo en false cuando ya no lo necesites.
-      // ============================================================
       DEBUG: { MOSTRAR_FPS: false },
       MODELO_ARMA: 'https://raw.githubusercontent.com/DJEZRA06/pistolas/main/pistola_9mm.glb',
       SONIDO_DISPARO: 'https://github.com/user-attachments/files/33082111/Disparo9mm.wav',
@@ -455,16 +435,16 @@
       SUAVIZADO: 0.15,
       CADENCIA_DISPARO: 120,
       BALA: {
-        VELOCIDAD: 25,
-        LARGO_LINEA: 0.6,
-        ALCANCE_TOTAL_CADERA: 16,
-        ALCANCE_TOTAL_ADS: 14,
+        VELOCIDAD: 55,
+        LARGO_LINEA: 0.5,
+        ALCANCE_TOTAL_CADERA: 36,
+        ALCANCE_TOTAL_ADS: 34,
         DESVIO_CADERA: { x: 0.02, y: 0.01 },
         DESVIO_ADS: { x: 0.00, y: 0.00 },
         VIDA_MAX_CADERA: 1.70,
         VIDA_MAX_ADS: 1.70,
         COLOR: 0xFF0000,
-        ANCHURA_LINEA: 6,
+        ANCHURA_LINEA: 3,
         DESVANECIMIENTO: true,
         POSICION_LOCAL_CAÑON_CADERA: { x: 0.00, y: 0.08, z: 0.05 },
         POSICION_LOCAL_CAÑON_ADS: { x: 0.05, y: 0.06, z: 0.05 }
@@ -511,6 +491,75 @@
         duracion: 4000, suavizado: 0.08, permitirCancelar: true
       }
     };
+
+    // ============================================================
+    //  SISTEMA DE GIROSCOPIO
+    // ============================================================
+    const Giroscopio = {
+      activo: false,
+      inicializado: false,
+      orientacionBase: new THREE.Quaternion(),
+      orientacionActual: new THREE.Quaternion(),
+      euler: new THREE.Euler(0, 0, 0, 'YXZ'),
+      q1: new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5)), // Corrige la orientación del sensor
+      q0: new THREE.Quaternion(),
+      zee: new THREE.Vector3(0, 0, 1),
+      screenTransform: new THREE.Quaternion(),
+      worldTransform: new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5)),
+      alpha: 0, beta: 0, gamma: 0,
+      
+      solicitarPermisos: function() {
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+          DeviceOrientationEvent.requestPermission()
+            .then(response => {
+              if (response === 'granted') {
+                window.addEventListener('deviceorientation', Giroscopio.onOrientationEvent, false);
+                Giroscopio.activo = true;
+              }
+            })
+            .catch(console.error);
+        } else {
+          window.addEventListener('deviceorientation', Giroscopio.onOrientationEvent, false);
+          Giroscopio.activo = true;
+        }
+      },
+
+      onOrientationEvent: function(e) {
+        if (e.alpha !== null) Giroscopio.alpha = e.alpha;
+        if (e.beta !== null) Giroscopio.beta = e.beta;
+        if (e.gamma !== null) Giroscopio.gamma = e.gamma;
+      },
+
+      actualizarCamara: function(cam) {
+        if (!Giroscopio.activo || !MODO_SIMULADOR) return;
+
+        const alpha = THREE.MathUtils.degToRad(Giroscopio.alpha);
+        const beta = THREE.MathUtils.degToRad(Giroscopio.beta);
+        const gamma = THREE.MathUtils.degToRad(Giroscopio.gamma);
+        const orient = THREE.MathUtils.degToRad(window.orientation || 0);
+
+        Giroscopio.euler.set(beta, alpha, -gamma, 'YXZ');
+        Giroscopio.orientacionActual.setFromEuler(Giroscopio.euler);
+
+        Giroscopio.q0.setFromAxisAngle(Giroscopio.zee, -orient);
+        Giroscopio.orientacionActual.multiply(Giroscopio.q0);
+        Giroscopio.orientacionActual.multiply(Giroscopio.q1);
+
+        if (!Giroscopio.inicializado) {
+          Giroscopio.orientacionBase.copy(Giroscopio.orientacionActual).invert();
+          Giroscopio.inicializado = true;
+        }
+
+        const qFinal = new THREE.Quaternion();
+        qFinal.copy(Giroscopio.orientacionBase).multiply(Giroscopio.orientacionActual);
+        cam.quaternion.slerp(qFinal, CONFIG.GIROSCOPIO.SUAVIZADO);
+      },
+
+      recalibrar: function() {
+        Giroscopio.orientacionBase.copy(Giroscopio.orientacionActual).invert();
+      }
+    };
+
     let poolDisparos = [];
     const MAX_DISPAROS_SIMULTANEOS = 8;
     function dispararSonido() {
@@ -534,6 +583,7 @@
       audioRecarga.play().catch(() => {});
     }
     function vacioSonido() {}
+
     let scene, camera, renderer, gun = null;
     let puntoSalidaCañon = null;
     let MODO_SIMULADOR = false;
@@ -548,6 +598,7 @@
     let balas = [];
     let chispas = [];
     let polvo = [];
+
     const UI = {
       inicio: document.getElementById('start-screen'),
       hud: document.getElementById('hud'),
@@ -565,12 +616,11 @@
       btnRecargar: document.getElementById('btn-reload'),
       btnInspeccion: document.getElementById('btn-inspect'),
       btnPausa: document.getElementById('btn-pause'),
+      btnRecal: document.getElementById('btn-recal'),
       btnReanudar: document.getElementById('btn-resume'),
       btnSalir: document.getElementById('btn-quit')
     };
-    // ===== RENDIMIENTO: reutilizar objetos en vez de crearlos/destruirlos en cada disparo =====
-    // Geometrías compartidas + "pools" de mallas. Así no se suben ni liberan buffers de la GPU
-    // en cada tiro (eso causaba tirones al disparar rápido).
+
     const Pool = { chispas: [], polvo: [], balas: [], geoChispa: null, geoPolvo: null, geoBala: null };
     function reiniciarPools() {
       Pool.chispas.length = 0; Pool.polvo.length = 0; Pool.balas.length = 0;
@@ -579,10 +629,10 @@
     function liberarChispa(mesh) { scene.remove(mesh); Pool.chispas.push(mesh); }
     function liberarPolvo(mesh) { scene.remove(mesh); Pool.polvo.push(mesh); }
     function liberarBala(mesh) { scene.remove(mesh); Pool.balas.push(mesh); }
-    // Luces de fogonazo/impacto: se crean UNA sola vez (intensidad 0) y solo se les cambia la intensidad.
-    // Añadir/quitar luces en cada disparo obligaba a Three.js a recompilar los shaders (tirones).
+
     let luzFogonazo = null, luzImpacto = null, tFogonazo = 0, tImpacto = 0;
     const EJE_Y = new THREE.Vector3(0, 1, 0);
+
     function crearChispaCilindrica(pos, direccion) {
       if (!Pool.geoChispa) Pool.geoChispa = new THREE.CylinderGeometry(CONFIG.CHISPAS.ANCHO/2, CONFIG.CHISPAS.ANCHO/2, CONFIG.CHISPAS.LARGO, 6);
       let chispa = Pool.chispas.pop();
@@ -597,6 +647,7 @@
         vida: 0, vidaMax: CONFIG.CHISPAS.DURACION*(0.7+Math.random()*0.6)
       };
     }
+
     function crearEfectosFogonazo(pos) {
       if (luzFogonazo) { luzFogonazo.position.copy(pos); luzFogonazo.intensity = 4; tFogonazo = 0.05; }
       const dirPrincipal = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
@@ -617,7 +668,7 @@
         ).normalize();
         
         const radio = CONFIG.POLVO.RADIO_MIN + Math.random() * (CONFIG.POLVO.RADIO_MAX - CONFIG.POLVO.RADIO_MIN);
-        if (!Pool.geoPolvo) Pool.geoPolvo = new THREE.SphereGeometry(1, 6, 6);   // esfera unitaria, se escala por partícula
+        if (!Pool.geoPolvo) Pool.geoPolvo = new THREE.SphereGeometry(1, 6, 6);
         let particula = Pool.polvo.pop();
         if (!particula) particula = new THREE.Mesh(Pool.geoPolvo, new THREE.MeshBasicMaterial({
           color: CONFIG.POLVO.COLOR,
@@ -673,6 +724,7 @@
       balas.push({ mesh: linea, material: mat, direccion: dirFinal, velocidad: CONFIG.BALA.VELOCIDAD, distanciaRecorrida: 0, distanciaMax: alcance, vida: 0, vidaMax: vidaMax });
       crearEfectosFogonazo(posOrigen);
     }
+
     function actualizarBalasYEfectos(delta) {
       if (tFogonazo > 0) { tFogonazo -= delta; if (tFogonazo <= 0 && luzFogonazo) luzFogonazo.intensity = 0; }
       if (tImpacto > 0) { tImpacto -= delta; if (tImpacto <= 0 && luzImpacto) luzImpacto.intensity = 0; }
@@ -719,11 +771,13 @@
         }
       }
     }
+
     function actualizarPosicionCañon() {
       if (!puntoSalidaCañon) return;
       const pos = isAiming ? CONFIG.BALA.POSICION_LOCAL_CAÑON_ADS : CONFIG.BALA.POSICION_LOCAL_CAÑON_CADERA;
       puntoSalidaCañon.position.set(pos.x, pos.y, pos.z);
     }
+
     function obtenerPosicionCañon(salidaPos) {
       if (gun && puntoSalidaCañon) {
         actualizarPosicionCañon();
@@ -731,6 +785,7 @@
         puntoSalidaCañon.getWorldPosition(salidaPos);
       } else camera.getWorldPosition(salidaPos);
     }
+
     function crearArmaPrueba() {
       const g = new THREE.Group();
       const cuerpo = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.15,0.6), new THREE.MeshStandardMaterial({color:0x222222,metalness:0.8,roughness:0.2}));
@@ -742,13 +797,14 @@
       g.position.set(CONFIG.POS_CADERA.x, CONFIG.POS_CADERA.y, CONFIG.POS_CADERA.z);
       return g;
     }
-    // ===== EDITOR DE HUD (guardado separado: Simulador / Realidad Aumentada) =====
+
+    // ===== EDITOR DE HUD =====
     const HUDEditor = {
       activa: false, cargado: false, modo: 'simulador',
       guardado: {}, borrador: {},
       sel: null, arrastre: null, elementos: [], barra: null
     };
-    const IDS_HUD_EDITABLES = ['joystick', 'btn-pause', 'hud-top', 'btn-inspect', 'btn-reload', 'btn-fire', 'btn-aim'];
+    const IDS_HUD_EDITABLES = ['joystick', 'btn-pause', 'btn-recal', 'hud-top', 'btn-inspect', 'btn-reload', 'btn-fire', 'btn-aim'];
     const HUDUI = {
       barra: document.getElementById('hud-editor'),
       titulo: document.getElementById('hud-editor-titulo'),
@@ -759,6 +815,7 @@
       btnCancelar: document.getElementById('hud-cancel'),
       btnGuardar: document.getElementById('hud-save')
     };
+
     function claveHUD() { return CONFIG.HUD.CLAVE_GUARDADO + '_' + HUDEditor.modo; }
     function leerLayoutHUD() {
       try {
@@ -774,7 +831,7 @@
       } catch (e) { console.warn('No se pudo guardar el HUD', e); }
     }
     function copiarLayoutHUD(l) { return JSON.parse(JSON.stringify(l)); }
-    // Aplica posición/tamaño a un elemento (en fracciones de pantalla) y lo mantiene dentro de la pantalla
+
     function colocarHUD(el, d) {
       const W = window.innerWidth, H = window.innerHeight;
       d.s = Math.max(CONFIG.HUD.ESCALA_MIN, Math.min(CONFIG.HUD.ESCALA_MAX, d.s || 1));
@@ -791,12 +848,14 @@
       }
       return d;
     }
+
     function aplicarLayoutHUD(layout) {
       HUDEditor.elementos.forEach(({ id, el }) => {
         el.style.translate = ''; el.style.scale = '';
         if (layout[id]) colocarHUD(el, layout[id]);
       });
     }
+
     function prepararElementosHUD() {
       if (HUDEditor.elementos.length) return;
       IDS_HUD_EDITABLES.forEach(id => {
@@ -810,7 +869,7 @@
         el.addEventListener('pointercancel', finArrastreHUD);
       });
     }
-    // Se llama al empezar una partida: carga la disposición propia del modo actual
+
     function cargarLayoutHUD() {
       prepararElementosHUD();
       HUDEditor.modo = MODO_SIMULADOR ? 'simulador' : 'ar';
@@ -820,6 +879,7 @@
       aplicarLayoutHUD(HUDEditor.guardado);
       HUDEditor.cargado = true;
     }
+
     function seleccionarHUD(id, el) {
       HUDEditor.elementos.forEach(x => x.el.classList.remove('hud-sel'));
       el.classList.add('hud-sel');
@@ -830,6 +890,7 @@
       HUDUI.slider.value = Math.round(s * 100);
       HUDUI.valor.textContent = Math.round(s * 100) + '%';
     }
+
     function inicioArrastreHUD(e, id, el) {
       if (!HUDEditor.activa) return;
       e.preventDefault();
@@ -839,6 +900,7 @@
       HUDEditor.arrastre = { id, el, x: e.clientX, y: e.clientY, dx: d.dx, dy: d.dy, pid: e.pointerId };
       try { el.setPointerCapture(e.pointerId); } catch (_) {}
     }
+
     function moverArrastreHUD(e) {
       const a = HUDEditor.arrastre;
       if (!HUDEditor.activa || !a || a.pid !== e.pointerId) return;
@@ -847,7 +909,9 @@
       d.dy = a.dy + (e.clientY - a.y) / window.innerHeight;
       colocarHUD(a.el, d);
     }
+
     function finArrastreHUD() { HUDEditor.arrastre = null; }
+
     function abrirEditorHUD() {
       if (!HUDEditor.cargado) cargarLayoutHUD();
       HUDEditor.activa = true;
@@ -860,13 +924,15 @@
       UI.hud.classList.add('hud-editando');
       HUDUI.barra.classList.remove('hidden');
     }
+
     function cerrarEditorHUD() {
       HUDEditor.activa = false; HUDEditor.arrastre = null; HUDEditor.sel = null;
       UI.hud.classList.remove('hud-editando');
       HUDEditor.elementos.forEach(x => x.el.classList.remove('hud-sel'));
       HUDUI.barra.classList.add('hidden');
-      UI.pausa.classList.remove('hidden');   // vuelve al menú de pausa
+      UI.pausa.classList.remove('hidden');
     }
+
     function guardarEditorHUD() {
       const limpio = {};
       Object.keys(HUDEditor.borrador).forEach(id => {
@@ -877,11 +943,13 @@
       escribirLayoutHUD(limpio);
       cerrarEditorHUD();
     }
+
     function cancelarEditorHUD() {
       HUDEditor.borrador = copiarLayoutHUD(HUDEditor.guardado);
       aplicarLayoutHUD(HUDEditor.guardado);
       cerrarEditorHUD();
     }
+
     function restablecerEditorHUD() {
       HUDEditor.borrador = {};
       aplicarLayoutHUD({});
@@ -889,6 +957,7 @@
       HUDEditor.elementos.forEach(x => x.el.classList.remove('hud-sel'));
       HUDUI.slider.disabled = true; HUDUI.slider.value = 100; HUDUI.valor.textContent = '--';
     }
+
     HUDUI.slider.addEventListener('input', () => {
       const id = HUDEditor.sel; if (!id) return;
       const item = HUDEditor.elementos.find(x => x.id === id); if (!item) return;
@@ -897,11 +966,11 @@
       colocarHUD(item.el, d);
       HUDUI.valor.textContent = Math.round(d.s * 100) + '%';
     });
-    // Mientras se edita, los botones del HUD no ejecutan sus acciones (disparar, pausa, etc.)
+
     document.addEventListener('click', e => {
       if (HUDEditor.activa && e.target.closest && e.target.closest('#hud')) { e.stopImmediatePropagation(); e.preventDefault(); }
     }, true);
-    // La barra del editor se puede mover arrastrando el título
+
     (function () {
       let ar = null;
       HUDUI.titulo.addEventListener('pointerdown', e => {
@@ -920,33 +989,39 @@
       HUDUI.titulo.addEventListener('pointerup', fin);
       HUDUI.titulo.addEventListener('pointercancel', fin);
     })();
+
     HUDUI.btnAbrir.addEventListener('click', abrirEditorHUD);
     HUDUI.btnGuardar.addEventListener('click', guardarEditorHUD);
     HUDUI.btnCancelar.addEventListener('click', cancelarEditorHUD);
     HUDUI.btnReset.addEventListener('click', restablecerEditorHUD);
-    // ===== JOYSTICK DE MOVIMIENTO (SOLO MODO SIMULADOR) =====
+
+    // ===== JOYSTICK DE MOVIMIENTO =====
     const Joystick = { x: 0, y: 0, pid: null };
     const JOYUI = { base: document.getElementById('joystick'), knob: document.getElementById('joystick-knob') };
+
     function mostrarJoystick(visible) {
       JOYUI.base.classList.toggle('hidden', !visible);
       reiniciarJoystick();
     }
+
     function reiniciarJoystick() {
       Joystick.x = 0; Joystick.y = 0; Joystick.pid = null;
       JOYUI.knob.style.transform = 'translate(0px, 0px)';
     }
+
     function moverPalancaJoystick(e) {
       const r = JOYUI.base.getBoundingClientRect();
       const radioPantalla = r.width / 2;
-      const recorrido = radioPantalla * 0.6;               // hasta dónde llega el botón central
+      const recorrido = radioPantalla * 0.6;
       let nx = (e.clientX - (r.left + r.width / 2)) / recorrido;
       let ny = (e.clientY - (r.top + r.height / 2)) / recorrido;
       const largo = Math.hypot(nx, ny);
       if (largo > 1) { nx /= largo; ny /= largo; }
-      Joystick.x = nx; Joystick.y = -ny;                    // arriba = avanzar
-      const local = (JOYUI.base.offsetWidth / 2) * 0.6;     // desplazamiento visual (sin escala)
+      Joystick.x = nx; Joystick.y = -ny;
+      const local = (JOYUI.base.offsetWidth / 2) * 0.6;
       JOYUI.knob.style.transform = 'translate(' + (nx * local) + 'px, ' + (ny * local) + 'px)';
     }
+
     JOYUI.base.addEventListener('pointerdown', e => {
       if (!MODO_SIMULADOR || HUDEditor.activa || isPaused) return;
       e.preventDefault();
@@ -954,29 +1029,40 @@
       try { JOYUI.base.setPointerCapture(e.pointerId); } catch (_) {}
       moverPalancaJoystick(e);
     });
+
     JOYUI.base.addEventListener('pointermove', e => {
       if (Joystick.pid !== e.pointerId) return;
       moverPalancaJoystick(e);
     });
+
     const soltarJoystick = e => { if (Joystick.pid === e.pointerId) reiniciarJoystick(); };
     JOYUI.base.addEventListener('pointerup', soltarJoystick);
     JOYUI.base.addEventListener('pointercancel', soltarJoystick);
+
     function actualizarMovimientoJugador(delta) {
       const C = CONFIG.JOYSTICK;
       if (!C.ACTIVO || !camera) return;
       const mag = Math.hypot(Joystick.x, Joystick.y);
       if (mag < C.ZONA_MUERTA) return;
       const fuerza = (Math.min(mag, 1) - C.ZONA_MUERTA) / (1 - C.ZONA_MUERTA);
-      const ax = Joystick.x / mag, ay = Joystick.y / mag;   // dirección: ax = derecha, ay = adelante
-      const yaw = camera.rotation.y;                        // solo la dirección horizontal de la vista
+      const ax = Joystick.x / mag, ay = Joystick.y / mag;
+      
+      // Obtener dirección del jugador desde la vista de la cámara
+      const dirFrontal = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+      dirFrontal.y = 0; dirFrontal.normalize();
+      
+      const dirLateral = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+      dirLateral.y = 0; dirLateral.normalize();
+
       const dist = C.VELOCIDAD * fuerza * delta;
-      let px = camera.position.x + (-Math.sin(yaw) * ay + Math.cos(yaw) * ax) * dist;
-      let pz = camera.position.z + (-Math.cos(yaw) * ay - Math.sin(yaw) * ax) * dist;
+      let px = camera.position.x + (dirFrontal.x * ay + dirLateral.x * ax) * dist;
+      let pz = camera.position.z + (dirFrontal.z * ay + dirLateral.z * ax) * dist;
+
       if (C.COLISIONES_JUGADOR) {
         for (let pasada = 0; pasada < 2; pasada++) {
           for (const o of colisionadores) {
             const dx = px - o.x, dz = pz - o.z, d = Math.hypot(dx, dz), minimo = o.r + C.RADIO_JUGADOR;
-            if (d < minimo) {                                // empuja al jugador fuera (se desliza por el borde)
+            if (d < minimo) {
               if (d > 1e-5) { px = o.x + dx / d * minimo; pz = o.z + dz / d * minimo; }
               else px = o.x + minimo;
             }
@@ -987,10 +1073,12 @@
       pz = Math.max(-C.LIMITE_MAPA, Math.min(C.LIMITE_MAPA, pz));
       camera.position.x = px; camera.position.z = pz;
     }
-    // ===== ENTORNO DEL SIMULADOR: ÁRBOLES, ROCAS Y COLISIONES =====
+
+    // ===== ENTORNO DEL SIMULADOR =====
     let obstaculos = [];
-    let colisionadores = [];   // círculos (x, z, r) con los que choca el jugador
+    let colisionadores = [];
     const raycasterBalas = new THREE.Raycaster();
+
     function crearGeneradorAleatorio(semilla) {
       let a = semilla >>> 0;
       return function () {
@@ -1001,6 +1089,7 @@
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
       };
     }
+
     function crearGeometriaRoca(azar) {
       const geo = new THREE.IcosahedronGeometry(1, 1);
       const pos = geo.attributes.position;
@@ -1015,13 +1104,14 @@
       geo.computeBoundingSphere();
       return geo;
     }
+
     function crearEntorno(alturaSuelo) {
       const E = CONFIG.ENTORNO;
       const azar = crearGeneradorAleatorio(E.SEMILLA);
       obstaculos = [];
       colisionadores = [];
       const colocados = [];
-      // Materiales y geometrías compartidos (más ligero)
+
       const matTronco = new THREE.MeshStandardMaterial({ color: E.COLOR_TRONCO, roughness: 1, flatShading: true });
       const matCopas = E.COLORES_COPA.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, flatShading: true }));
       const matRocas = E.COLORES_ROCA.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 1, flatShading: true }));
@@ -1032,6 +1122,7 @@
         { geo: new THREE.ConeGeometry(0.75, 1.5, 8), y: 4.5 }
       ];
       const geoRocas = [crearGeometriaRoca(azar), crearGeometriaRoca(azar), crearGeometriaRoca(azar), crearGeometriaRoca(azar)];
+
       function buscarPosicion(radio) {
         for (let intento = 0; intento < 40; intento++) {
           const ang = azar() * Math.PI * 2;
@@ -1042,6 +1133,7 @@
         }
         return null;
       }
+
       for (let i = 0; i < E.ARBOLES; i++) {
         const esc = E.ESCALA_ARBOL_MIN + azar() * (E.ESCALA_ARBOL_MAX - E.ESCALA_ARBOL_MIN);
         const sitio = buscarPosicion(1.4 * esc);
@@ -1057,6 +1149,7 @@
         scene.add(arbol); obstaculos.push(arbol);
         colisionadores.push({ x: sitio.x, z: sitio.z, r: E.COLISION_ARBOL * esc });
       }
+
       for (let i = 0; i < E.ROCAS; i++) {
         const esc = E.ESCALA_ROCA_MIN + azar() * (E.ESCALA_ROCA_MAX - E.ESCALA_ROCA_MIN);
         const sitio = buscarPosicion(esc);
@@ -1064,13 +1157,13 @@
         const roca = new THREE.Mesh(geoRocas[Math.floor(azar() * geoRocas.length)], matRocas[Math.floor(azar() * matRocas.length)]);
         roca.scale.set(esc * (0.9 + azar() * 0.5), esc * (0.55 + azar() * 0.35), esc * (0.9 + azar() * 0.5));
         roca.rotation.y = azar() * Math.PI * 2;
-        roca.position.set(sitio.x, alturaSuelo + roca.scale.y * 0.35, sitio.z); // semienterrada
+        roca.position.set(sitio.x, alturaSuelo + roca.scale.y * 0.35, sitio.z);
         scene.add(roca); obstaculos.push(roca);
         colisionadores.push({ x: sitio.x, z: sitio.z, r: Math.max(roca.scale.x, roca.scale.z) * E.COLISION_ROCA });
       }
       scene.updateMatrixWorld(true);
     }
-    // Devuelve { punto, normal } si el tramo recorrido por la bala golpea un árbol o roca
+
     function detectarImpactoObstaculo(origen, direccion, distancia) {
       raycasterBalas.set(origen, direccion);
       raycasterBalas.near = 0;
@@ -1081,6 +1174,7 @@
       const normal = h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld) : direccion.clone().negate();
       return { punto: h.point.clone(), normal };
     }
+
     function efectosImpactoObstaculo(imp, direccion) {
       crearExplosionPolvo(imp.punto.clone());
       const reflejo = direccion.clone().reflect(imp.normal);
@@ -1089,144 +1183,40 @@
         chispas.push(crearChispaCilindrica(imp.punto.clone().addScaledVector(imp.normal, 0.01), dir));
       }
     }
-    // ===== GIROSCOPIO (SOLO MODO SIMULADOR) =====
-    // Los ajustes se editan en CONFIG.GIROSCOPIO (arriba del script).
-    const Giroscopio = {
-      activo: false, recibido: false,
-      alpha: 0, beta: 0, gamma: 0,
-      iniciado: false,
-      yawPrev: 0, pitchPrev: 0,      // última lectura del teléfono (radianes)
-      yawObj: 0, pitchObj: 0,        // hacia dónde quiere mirar el jugador
-      yawAct: 0, pitchAct: 0,        // lo que realmente se muestra (suavizado)
-      rollAct: 0,                    // inclinación lateral mostrada (suavizada)
-      qDisp: new THREE.Quaternion(),
-      euler: new THREE.Euler(),
-      q1: new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5)),
-      q0: new THREE.Quaternion(),
-      eje: new THREE.Vector3(0, 0, 1),
-      listener: null
-    };
-    async function activarGiroscopio() {
-      if (!CONFIG.GIROSCOPIO.ACTIVO) return;
-      if (typeof DeviceOrientationEvent === 'undefined') return;
-      try {
-        // iOS exige permiso explícito (debe pedirse desde un toque del usuario)
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-          const r = await DeviceOrientationEvent.requestPermission();
-          if (r !== 'granted') return;
-        }
-      } catch (e) { console.warn('Giroscopio no autorizado', e); return; }
-      Giroscopio.recibido = false;
-      Giroscopio.iniciado = false;
-      Giroscopio.listener = (e) => {
-        if (e.alpha === null || e.beta === null || e.gamma === null) return;
-        Giroscopio.alpha = e.alpha; Giroscopio.beta = e.beta; Giroscopio.gamma = e.gamma;
-        Giroscopio.recibido = true;
-      };
-      window.addEventListener('deviceorientation', Giroscopio.listener);
-      Giroscopio.activo = true;
+
+    async function iniciarSimulador() { 
+      MODO_SIMULADOR = true; 
+      Giroscopio.solicitarPermisos();
+      arrancarJuego(); 
     }
-    function desactivarGiroscopio() {
-      if (Giroscopio.listener) window.removeEventListener('deviceorientation', Giroscopio.listener);
-      Giroscopio.listener = null; Giroscopio.activo = false;
-      Giroscopio.recibido = false; Giroscopio.iniciado = false; Giroscopio.rollAct = 0;
-    }
-    // Vuelve a fijar "al frente" la dirección actual del teléfono (puedes llamarla desde un botón)
-    function recentrarGiroscopio() { Giroscopio.iniciado = false; Giroscopio.yawObj = 0; Giroscopio.yawAct = 0; }
-    // Centra TOTALMENTE la cámara (doble toque): izquierda/derecha Y arriba/abajo al horizonte,
-    // sin importar hacia dónde esté apuntando el teléfono. Solo se usa en el Simulador.
-    function recentrarCamaraCompleta() {
-      const G = Giroscopio;
-      if (!G.activo || !G.recibido) { recentrarGiroscopio(); return; } // sin datos del giro: fallback
-      const lectura = leerAngulosTelefono();
-      G.yawPrev = lectura.yaw; G.pitchPrev = lectura.pitch; // los deltas futuros se miden desde la orientación actual del teléfono
-      G.yawObj = 0;   G.yawAct = 0;     // centro horizontal (frente)
-      G.pitchObj = 0; G.pitchAct = 0;   // centro vertical = horizonte (mirando perfectamente al frente)
-      G.iniciado = true;                // evita que la calibración inicial sobreescriba el pitch con la inclinación del teléfono
-    }
-    function leerAngulosTelefono() {
-      const G = Giroscopio, D = Math.PI / 180;
-      const orient = ((screen.orientation && screen.orientation.angle) || window.orientation || 0) * D;
-      G.euler.set(G.beta * D, G.alpha * D, -G.gamma * D, 'YXZ');
-      G.qDisp.setFromEuler(G.euler);
-      G.qDisp.multiply(G.q1);
-      G.qDisp.multiply(G.q0.setFromAxisAngle(G.eje, -orient));
-      const e = new THREE.Euler().setFromQuaternion(G.qDisp, 'YXZ');
-      return { yaw: e.y, pitch: e.x, roll: e.z };
-    }
-    function diferenciaAngulo(a, b) {
-      let d = a - b;
-      while (d > Math.PI) d -= Math.PI * 2;
-      while (d < -Math.PI) d += Math.PI * 2;
-      return d;
-    }
-    function actualizarGiroscopio() {
-      const G = Giroscopio, C = CONFIG.GIROSCOPIO;
-      if (!G.activo || !G.recibido || !camera) return;
-      const D = Math.PI / 180;
-      const lectura = leerAngulosTelefono();
-      // Primera lectura (o recentrado): fija el "frente"
-      if (!G.iniciado) {
-        G.yawPrev = lectura.yaw; G.pitchPrev = lectura.pitch;
-        if (!C.CALIBRAR_AL_INICIAR) { G.yawObj = lectura.yaw; G.yawAct = lectura.yaw; }
-        if (C.MANTENER_PITCH_INICIAL) { G.pitchObj = lectura.pitch; G.pitchAct = lectura.pitch; }
-        G.iniciado = true;
-      }
-      // Cambio de ángulo desde el fotograma anterior
-      let dYaw = diferenciaAngulo(lectura.yaw, G.yawPrev);
-      let dPitch = lectura.pitch - G.pitchPrev;
-      G.yawPrev = lectura.yaw; G.pitchPrev = lectura.pitch;
-      // Zona muerta (ignora movimientos diminutos)
-      const zona = C.ZONA_MUERTA * D;
-      if (Math.abs(dYaw) < zona) dYaw = 0;
-      if (Math.abs(dPitch) < zona) dPitch = 0;
-      // Sensibilidad e inversión
-      G.yawObj += dYaw * C.SENSIBILIDAD_X * (C.INVERTIR_X ? -1 : 1);
-      G.pitchObj += dPitch * C.SENSIBILIDAD_Y * (C.INVERTIR_Y ? -1 : 1);
-      // Límites verticales
-      G.pitchObj = Math.max(-C.LIMITE_ABAJO * D, Math.min(C.LIMITE_ARRIBA * D, G.pitchObj));
-      // Suavizado (0 = directo)
-      const k = 1 - Math.max(0, Math.min(0.95, C.SUAVIZADO));
-      G.yawAct += (G.yawObj - G.yawAct) * k;
-      G.pitchAct += (G.pitchObj - G.pitchAct) * k;
-      // Inclinación lateral (el arma va dentro de la cámara, así que se inclina con ella)
-      const limRoll = C.LIMITE_INCLINACION * D;
-      const rollObj = Math.max(-limRoll, Math.min(limRoll,
-        lectura.roll * C.INCLINACION_LATERAL * (C.INVERTIR_INCLINACION ? -1 : 1)));
-      const kRoll = 1 - Math.max(0, Math.min(0.95, C.SUAVIZADO_INCLINACION));
-      G.rollAct += (rollObj - G.rollAct) * kRoll;
-      camera.rotation.order = 'YXZ';
-      camera.rotation.set(G.pitchAct, G.yawAct, G.rollAct);
-    }
-    async function iniciarSimulador() { MODO_SIMULADOR = true; activarGiroscopio(); arrancarJuego(); }
+
     async function iniciarAR() {
       if (!navigator.xr) { UI.estadoXR.textContent = '❌ WebXR no disponible. Usa Chrome en Android.'; return; }
       const soportado = await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
       if (!soportado) { UI.estadoXR.textContent = '❌ AR no soportado en este dispositivo.'; return; }
       MODO_SIMULADOR = false; arrancarJuego();
     }
-       async function arrancarJuego() {
+
+    async function arrancarJuego() {
       try {
         isPaused = false;
         UI.pausa.classList.add('hidden');
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.01, 100);
         scene.add(camera);
-        // Luces de efectos fijas (intensidad 0 hasta que se usan): el número de luces nunca cambia
+
         luzFogonazo = new THREE.PointLight(0xffcc00, 0, 1.5); scene.add(luzFogonazo);
         luzImpacto = new THREE.PointLight(0xffddaa, 0, 1.2); scene.add(luzImpacto);
         tFogonazo = 0; tImpacto = 0;
-        // CONFIGURACIÓN EXCLUSIVA PARA EL MODO SIMULADOR (ENTORNO DE CAMPO Y CIELO)
+
         if (MODO_SIMULADOR) {
-          // Cielo azul claro
           scene.background = new THREE.Color(0x87CEEB);
-          // Neblina (solo Simulador)
           if (CONFIG.NEBLINA.ACTIVA) {
             scene.fog = new THREE.Fog(CONFIG.NEBLINA.COLOR, CONFIG.NEBLINA.CERCA, CONFIG.NEBLINA.LEJOS);
             scene.background = new THREE.Color(CONFIG.NEBLINA.COLOR);
           }
           UI.indicadorModo.classList.remove('hidden');
-          // Suelo de pasto verde (Plano grande)
+
           const geometrySuelo = new THREE.PlaneGeometry(100, 100);
           const materialSuelo = new THREE.MeshStandardMaterial({ 
             color: 0x3b7a2b, 
@@ -1234,15 +1224,15 @@
             metalness: 0.1 
           });
           const suelo = new THREE.Mesh(geometrySuelo, materialSuelo);
-          suelo.rotation.x = -Math.PI / 2; // Acostar el plano horizontalmente
-          suelo.position.y = -1.5;         // Situarlo debajo de la cámara del jugador
+          suelo.rotation.x = -Math.PI / 2;
+          suelo.position.y = -1.5;
           scene.add(suelo);
-          // Luz ambiental y direccional ajustada para simular luz de día al aire libre
+
           const luzDia = new THREE.DirectionalLight(0xffffff, 1.2);
           luzDia.position.set(10, 20, 10);
           scene.add(luzDia);
           if (CONFIG.ENTORNO.LUZ_AMBIENTE > 0) scene.add(new THREE.HemisphereLight(0xffffff, 0x3b7a2b, CONFIG.ENTORNO.LUZ_AMBIENTE));
-          // Árboles y rocas con colisiones
+
           crearEntorno(suelo.position.y);
         }
         
@@ -1251,32 +1241,7 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.xr.enabled = !MODO_SIMULADOR;
         document.body.appendChild(renderer.domElement);
-        // ===== DOBLE TOQUE PARA RECENTRAR CÁMARA (SOLO MODO SIMULADOR) =====
-        // Toca dos veces seguidas la vista (no los botones) para centrar la cámara.
-        // Útil cuando el giroscopio está desalineado o el teléfono mal posicionado.
-        if (MODO_SIMULADOR) {
-          let _ultToque = 0, _ultX = 0, _ultY = 0;
-          const _TOPE_MS = 320, _TOPE_PX = 60;
-          renderer.domElement.addEventListener('pointerdown', function (e) {
-            if (isPaused || HUDEditor.activa) return;
-            const ahora = performance.now();
-            const dx = e.clientX - _ultX, dy = e.clientY - _ultY;
-            if (ahora - _ultToque < _TOPE_MS && dx * dx + dy * dy < _TOPE_PX * _TOPE_PX) {
-              recentrarCamaraCompleta();
-              _ultToque = 0; // reinicia para no contar un tercer toque
-              // Feedback visual breve y sutil
-              const fb = document.createElement('div');
-              fb.textContent = 'Vista centrada';
-              fb.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:200;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(254,240,138,0.95);background:rgba(0,0,0,0.55);padding:0.45rem 1.1rem;border-radius:2rem;border:1px solid rgba(234,179,8,0.4);transition:opacity 0.4s ease;';
-              document.body.appendChild(fb);
-              setTimeout(function () { fb.style.opacity = '0'; }, 380);
-              setTimeout(function () { fb.remove(); }, 900);
-            } else {
-              _ultToque = ahora; _ultX = e.clientX; _ultY = e.clientY;
-            }
-          });
-        }
-        
+
         if (!MODO_SIMULADOR) {
           scene.add(new THREE.AmbientLight(0xffffff, 1.5));
           const l1 = new THREE.DirectionalLight(0xffffff, 2), l2 = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -1321,8 +1286,10 @@
         MODO_SIMULADOR ? requestAnimationFrame(animar) : renderer.setAnimationLoop(animar);
       } catch(err) { UI.estadoCarga.textContent = '❌ ' + err.message; UI.estadoCarga.style.color = '#f87171'; console.error(err); }
     }
+
     let tiempo = 0, tiempoAnterior = performance.now();
     const Diag = { el: null, frames: 0, peor: 0, ultimo: 0, inicio: 0, dedos: new Set() };
+
     function medirFPS() {
       const ahora = performance.now();
       if (!Diag.el) {
@@ -1344,18 +1311,25 @@
         Diag.frames = 0; Diag.peor = 0; Diag.inicio = ahora;
       }
     }
+
     function animar(t, frame) {
       if (CONFIG.DEBUG.MOSTRAR_FPS) medirFPS();
       const ahora = performance.now();
       const delta = Math.min((ahora-tiempoAnterior)/1000, 0.1);
       tiempoAnterior = ahora;
-      if (MODO_SIMULADOR) { requestAnimationFrame(animar); actualizarGiroscopio(); }
+
+      if (MODO_SIMULADOR) { requestAnimationFrame(animar); }
       if (isPaused) {
         renderer.render(scene, camera);
         return;
       }
       tiempo += delta;
-      if (MODO_SIMULADOR) actualizarMovimientoJugador(delta);
+
+      if (MODO_SIMULADOR) {
+        Giroscopio.actualizarCamara(camera);
+        actualizarMovimientoJugador(delta);
+      }
+
       actualizarBalasYEfectos(delta);
       if (!gun) { renderer.render(scene, camera); return; }
       
@@ -1397,23 +1371,26 @@
       }
       renderer.render(scene, camera);
     }
+
     function pausarJuego() {
       if (isPaused) return;
       isPaused = true;
       UI.pausa.classList.remove('hidden');
     }
+
     function reanudarJuego() {
       if (!isPaused) return;
       isPaused = false;
       tiempoAnterior = performance.now();
       UI.pausa.classList.add('hidden');
     }
+
     function salirAlMenu() {
       isPaused = false;
+      Giroscopio.inicializado = false;
       UI.pausa.classList.add('hidden');
       UI.hud.classList.add('hidden');
       UI.indicadorModo.classList.add('hidden');
-      desactivarGiroscopio();
       UI.inicio.classList.remove('hidden');
       if (xrSession) {
         xrSession.end().catch(()=>{});
@@ -1435,7 +1412,9 @@
       reiniciarJoystick();
       gun = null;
     }
+
     function cancelarInspeccion() { if (!isInspecting) return; if (timerRecarga) clearTimeout(timerRecarga); isInspecting = false; UI.textoModo.textContent = 'Cadera'; }
+
     function recargar() {
       if (isPaused || isReloading || ammo === CONFIG.MUNICION_MAX) return;
       if (isInspecting && CONFIG.INSPECCION.permitirCancelar) cancelarInspeccion();
@@ -1448,6 +1427,7 @@
         setTimeout(()=>UI.estadoCarga.classList.add('hidden'), 1000);
       }, CONFIG.RECARGA.duracion);
     }
+
     function disparar() {
       if (isPaused) return;
       const ahora = Date.now();
@@ -1474,6 +1454,7 @@
         }, CONFIG.RETRO.duracion);
       }
     }
+
     function apuntar() {
       if (isPaused) return;
       if (isInspecting && CONFIG.INSPECCION.permitirCancelar) { cancelarInspeccion(); return; }
@@ -1483,6 +1464,7 @@
       UI.crosshair.style.opacity = isAiming ? '0' : '1';
       UI.textoModo.textContent = isAiming ? 'Apuntando' : 'Cadera';
     }
+
     function inspeccionar() {
       if (isPaused) return;
       if (isInspecting) { cancelarInspeccion(); return; }
@@ -1491,9 +1473,11 @@
       actualizarPosicionCañon(); tiempoInspeccion = tiempo;
       UI.crosshair.style.opacity = '1'; UI.textoModo.textContent = 'Inspección';
     }
+
     // ===== EFECTO DE CHISPAS EN LOS BOTONES DEL MENÚ =====
-    const CHISPAS_INICIO = { cantidad: 90, velocidad: 11, gravedad: 0.28, vida: 55, retrasoMs: 450 };  // retrasoMs = espera antes de entrar al juego
+    const CHISPAS_INICIO = { cantidad: 90, velocidad: 11, gravedad: 0.28, vida: 55, retrasoMs: 450 };
     let cvChispas = null, ctxChispas = null, chispasInicio = [], anillosInicio = [], animChispas = false, inicioBloqueado = false;
+
     function lanzarChispas(x, y) {
       if (!cvChispas) {
         cvChispas = document.createElement('canvas');
@@ -1510,6 +1494,7 @@
       anillosInicio.push({ x, y, edad: 0 });
       if (!animChispas) { animChispas = true; requestAnimationFrame(animarChispas); }
     }
+
     function animarChispas() {
       const c = ctxChispas;
       c.globalCompositeOperation = 'source-over';
@@ -1531,6 +1516,7 @@
       if (chispasInicio.length || anillosInicio.length) requestAnimationFrame(animarChispas);
       else { animChispas = false; c.clearRect(0, 0, cvChispas.width, cvChispas.height); }
     }
+
     function pulsarConChispas(boton, accion) {
       boton.addEventListener('click', (e) => {
         if (inicioBloqueado) return;
@@ -1543,22 +1529,80 @@
     }
     pulsarConChispas(UI.btnSim, iniciarSimulador);
     pulsarConChispas(UI.btnAR, iniciarAR);
-    // MULTITOUCH: los botones de acción responden al instante a cada dedo (pointerdown),
-    // así puedes caminar con el joystick, apuntar y disparar al mismo tiempo.
+
+    // ===== CENIZAS EN LOOP =====
+    const CENIZAS = { cantidad: 80, velocidad: [0.4, 1.4], tamano: [1, 3.2], viento: 0.25, brasas: 0.2, opacidad: 0.6 };
+    const cvCenizas = document.createElement('canvas');
+    cvCenizas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none';
+    UI.inicio.insertBefore(cvCenizas, UI.inicio.querySelector('.scan-lines'));
+    const ctxCen = cvCenizas.getContext('2d');
+    let cenizas = [], animCenizas = false, tCenizas = 0;
+
+    function ajustarCenizas() { cvCenizas.width = UI.inicio.clientWidth; cvCenizas.height = UI.inicio.clientHeight; }
+    function nuevaCeniza(inicial) {
+      const w = cvCenizas.width, h = cvCenizas.height, rnd = (a, b) => a + Math.random() * (b - a);
+      return { x: Math.random() * w, y: inicial ? Math.random() * h : h + rnd(5, 60),
+        r: rnd(CENIZAS.tamano[0], CENIZAS.tamano[1]), vy: rnd(CENIZAS.velocidad[0], CENIZAS.velocidad[1]),
+        fase: Math.random() * 6.28, osc: rnd(0.01, 0.03), amp: rnd(0.3, 1), brasa: Math.random() < CENIZAS.brasas, tono: rnd(15, 40) };
+    }
+
+    function animarCenizas(ahora) {
+      if (!animCenizas) return;
+      const dt = Math.min((ahora - tCenizas) / 16.67 || 1, 3); tCenizas = ahora;
+      const w = cvCenizas.width, h = cvCenizas.height;
+      ctxCen.clearRect(0, 0, w, h);
+      cenizas.forEach((p, i) => {
+        p.fase += p.osc * dt;
+        p.y -= p.vy * dt;
+        p.x += (Math.sin(p.fase) * p.amp + CENIZAS.viento) * dt;
+        if (p.y < -10 || p.x > w + 20) { cenizas[i] = nuevaCeniza(false); if (p.x > w + 20) cenizas[i].y = Math.random() * h; return; }
+        const t = 1 - p.y / h;
+        const fade = Math.min(1, t * 6) * Math.min(1, (1 - t) * 3.5) * CENIZAS.opacidad;
+        if (fade <= 0) return;
+        if (p.brasa) {
+          const a = fade * (0.75 + 0.25 * Math.sin(p.fase * 4));
+          ctxCen.fillStyle = 'hsla(' + p.tono + ',100%,55%,' + a * 0.25 + ')';
+          ctxCen.beginPath(); ctxCen.arc(p.x, p.y, p.r * 3, 0, 6.28); ctxCen.fill();
+          ctxCen.fillStyle = 'hsla(' + p.tono + ',100%,70%,' + a + ')';
+        } else {
+          ctxCen.fillStyle = 'rgba(210,210,210,' + fade * 0.8 + ')';
+        }
+        ctxCen.beginPath(); ctxCen.arc(p.x, p.y, p.r, 0, 6.28); ctxCen.fill();
+      });
+      requestAnimationFrame(animarCenizas);
+    }
+
+    function iniciarCenizas() {
+      if (animCenizas) return;
+      ajustarCenizas();
+      cenizas = Array.from({ length: CENIZAS.cantidad }, () => nuevaCeniza(true));
+      animCenizas = true; tCenizas = performance.now(); requestAnimationFrame(animarCenizas);
+    }
+
+    function detenerCenizas() { animCenizas = false; ctxCen.clearRect(0, 0, cvCenizas.width, cvCenizas.height); }
+
+    new MutationObserver(() => UI.inicio.classList.contains('hidden') ? detenerCenizas() : iniciarCenizas())
+      .observe(UI.inicio, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('resize', () => { if (animCenizas) ajustarCenizas(); });
+    if (!UI.inicio.classList.contains('hidden')) iniciarCenizas();
+
     function alPresionar(boton, accion) {
       boton.addEventListener('pointerdown', () => {
-        if (HUDEditor.activa) return;   // mientras se edita el HUD no ejecutan acciones
+        if (HUDEditor.activa) return;
         accion();
       }, { passive: true });
     }
+
     alPresionar(UI.btnApuntar, apuntar);
     alPresionar(UI.btnDisparar, disparar);
     alPresionar(UI.btnRecargar, recargar);
     alPresionar(UI.btnInspeccion, inspeccionar);
     
     UI.btnPausa.addEventListener('click', pausarJuego);
+    UI.btnRecal.addEventListener('click', () => Giroscopio.recalibrar());
     UI.btnReanudar.addEventListener('click', reanudarJuego);
     UI.btnSalir.addEventListener('click', salirAlMenu);
+
     let resizePendiente = false, ultimoAncho = 0, ultimoAlto = 0;
     window.addEventListener('resize', () => {
       if (resizePendiente) return;
@@ -1567,13 +1611,14 @@
         resizePendiente = false;
         if (!camera || !renderer) return;
         const w = window.innerWidth, h = window.innerHeight;
-        if (w === ultimoAncho && h === ultimoAlto) return;   // mismo tamaño: no hacer nada
+        if (w === ultimoAncho && h === ultimoAlto) return;
         ultimoAncho = w; ultimoAlto = h;
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
       });
     });
+
     window.addEventListener('resize', () => {
       if (HUDEditor.cargado) aplicarLayoutHUD(HUDEditor.activa ? HUDEditor.borrador : HUDEditor.guardado);
     });
